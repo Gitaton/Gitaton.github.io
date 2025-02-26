@@ -23,6 +23,7 @@ let cactusY;
 let cactusSpeed;
 let buttonPressed = false;
 let gameState = "mainMenu";
+let groundHeight;
 
 function preload() {
   dinoImg = loadImage("assets/Dino.png");
@@ -36,7 +37,7 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(400, 400);
+  createCanvas(windowWidth, windowHeight);
   music();
 
   dinoX = 10;
@@ -44,9 +45,11 @@ function setup() {
 
   velocityY = 0;
   jumpHeight = 19;
+
+  groundHeight = 85;
   
   cactusX = width + 100;
-  cactusY = 308;
+  cactusY = height - 92;
   
   cactusSpeed = 10;
   cactusSpeedChange = 0.1;
@@ -100,10 +103,10 @@ function createCactus() {
 
 function moveDino() {
   // Gravity - If not touching ground then move down, if on ground and key is pressed then move up
-  if (dinoY < height - 75) {
+  if (dinoY < height - groundHeight) {
     velocityY += 1;
     dinoY += velocityY;
-  } else if (dinoY >= height - 75 && keyIsPressed) {
+  } else if (dinoY >= height - groundHeight && keyIsPressed) {
     velocityY = -jumpHeight;
     dinoY += velocityY;
   }
@@ -116,7 +119,7 @@ function moveCactus() {
   // If cactus goes off screen then make a new cactus and speed it up
   if (cactusX < 0 - cactusImg.width) {
     cactusX = width + 100;
-    cactusY = 308;
+    cactusY = height - 92;
     if (cactusSpeed >= 14.9) {
     cactusSpeed = 14.9;
   }
@@ -141,6 +144,7 @@ function collisonDetection() {
 function scoreText() {
   fill(82, 82, 82); // Fill with a grayish black color
   textFont(scoreFont);
+  textSize(24);
   text(frameCount, width - 100, 100);
 }
 
@@ -156,7 +160,7 @@ function soundEffects() {
 
 function playButton() {
   noStroke();
-  if (mouseX >= 75 && mouseX <= 155 && mouseY >= 200 && mouseY <= 300) {
+  if (mouseX >= 0.1875 * width && mouseX <= 3875 * width && mouseY >= 200 && mouseY <= 300) {
     fill(181, 24, 13);
   } else {
     fill("red");
@@ -166,21 +170,24 @@ function playButton() {
     buttonPressed = true;
   }
   
-  triangle(75, 200, 75, 300, 155, 250);
+  triangle(0.1875 * width, 200, 0.1875 * width, 300, 0.3875 * width, 250);
 }
 
 function menuTitle() {
   textFont(scoreFont);
   fill("white");
-  textSize(24);
-  text("CHROME DINO",Math.tan(frameCount * 0.01) * 10 + width/2 - 135, Math.cos(frameCount * 0.01) * 10 + height/4);
+  textSize(width/16.6666667);
+  text("CHROME DINO",Math.tan(frameCount * 0.01) * 10 + width/2 - (width * 0.3375), Math.cos(frameCount * 0.01) * 10 + height/4);
 }
 
 function menuDinosaur() {
   scale(-1, 1);
-  image(dinoMenuImg, Math.cos(frameCount * 0.025) * 5 - 500, Math.cos(frameCount * 0.05) * 2 + 180, 275, 275);
+  image(dinoMenuImg, Math.cos(frameCount * 0.025) * 5 - width*1.2, Math.cos(frameCount * 0.05) * 2 + height/2, 0.6875 * width, 0.6875 * width);
   scale(-1, 1);
 }
 
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
 
 
