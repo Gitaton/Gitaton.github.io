@@ -32,7 +32,7 @@ function preload() {
 
   soundTrack = loadSound("assets/cartoonGroove-Menu.mp3");
   
-  scoreFont = loadFont("assets/PressStart2P-Regular.ttf");
+  scoreFont = loadFont("assets/PressStart2P.ttf");
 }
 
 function setup() {
