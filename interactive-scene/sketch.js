@@ -160,7 +160,7 @@ function soundEffects() {
 
 function playButton() {
   noStroke();
-  if (mouseX >= 0.1875 * width && mouseX <= 3875 * width && mouseY >= 200 && mouseY <= 300) {
+  if (mouseX >= 75 && mouseX <= 155 && mouseY >= 200 && mouseY <= 300) {
     fill(181, 24, 13);
   } else {
     fill("red");
@@ -170,7 +170,7 @@ function playButton() {
     buttonPressed = true;
   }
   
-  triangle(0.1875 * width, 200, 0.1875 * width, 300, 0.3875 * width, 250);
+  triangle(width/3, 200, width/3, 300, width/2.5, 250);
 }
 
 function menuTitle() {
