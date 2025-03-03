@@ -1,9 +1,11 @@
-// Project Title
-// Your Name
-// Date
+// Chrome Dino Game
+// Karthik Narayan
+// 7 February 2025
 //
 // Extra for Experts:
 // - describe what you did to take this project "above and beyond"
+// - Added music to the project
+// - Made the window of the project resizable
 
 ////////////////////////////////////////
 // Karthik Narayan
@@ -40,16 +42,16 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   music();
 
-  dinoX = 10;
+  dinoX = width/5;
   dinoY = 0;
 
   velocityY = 0;
   jumpHeight = 19;
 
-  groundHeight = 85;
+  groundHeight = height/2;
   
   cactusX = width + 100;
-  cactusY = height - 92;
+  cactusY = height - groundHeight - 17;
   
   cactusSpeed = 10;
   cactusSpeedChange = 0.1;
@@ -61,7 +63,7 @@ function draw() {
 }
 
 function mainMenu() {
-  if (buttonPressed === false) {
+  if (gameState === "mainMenu") {
     background("black");
     playButton();
     menuDinosaur();
@@ -71,7 +73,7 @@ function mainMenu() {
 }
 
 function gameplay() {
-  if (buttonPressed === true) {
+  if (gameState === "gameplay") {
     background("white");
     scoreText();
     createDino();
@@ -119,7 +121,7 @@ function moveCactus() {
   // If cactus goes off screen then make a new cactus and speed it up
   if (cactusX < 0 - cactusImg.width) {
     cactusX = width + 100;
-    cactusY = height - 92;
+    cactusY = height - groundHeight - 17;
     if (cactusSpeed >= 14.9) {
     cactusSpeed = 14.9;
   }
@@ -128,7 +130,13 @@ function moveCactus() {
   }
 }
 
+function groundVisuals() {
+  // Renders the visuals of the ground object
+
+}
+
 function gameOver() {
+  // Renders the gameover screen with an image of a sad face
   background(0);
   image(endImg, 0, 0, width, height);
   noLoop();
@@ -136,16 +144,18 @@ function gameOver() {
 }
 
 function collisonDetection() {
+  // Detects of the cactus has collided with the dinosaur
   if (cactusX <= dinoX + 70 && cactusX >= dinoX - 30 && dinoY + 70 >= cactusY) {
     gameOver();
   } 
 }
 
 function scoreText() {
+  // Renders the score
   fill(82, 82, 82); // Fill with a grayish black color
   textFont(scoreFont);
   textSize(24);
-  text(frameCount, width - 100, 100);
+  text(frameCount, width - width/5, width/10);
 }
 
 function music() {  
@@ -159,6 +169,9 @@ function soundEffects() {
 }
 
 function playButton() {
+  // Renders the triangular play button on the menu, and controls mouse cursor logic
+
+  // If mouse is over the button change the color
   noStroke();
   if (mouseX >= 75 && mouseX <= 155 && mouseY >= 200 && mouseY <= 300) {
     fill(181, 24, 13);
@@ -166,14 +179,20 @@ function playButton() {
     fill("red");
   }
   
+  // If mouse is over the button and the mouse is clicked, then begin gameplay
   if (mouseX >= 75 && mouseX <= 155 && mouseY >= 200 && mouseY <= 300 && mouseIsPressed) {
-    buttonPressed = true;
+    gameState = "gameplay";
   }
   
-  triangle(width/3, 200, width/3, 300, width/2.5, 250);
+  // Scale the play button based on window size
+  push();
+  scale(width/1000);
+  triangle(300, 200, 300, 300, 400, 250);
+  pop();
 }
 
 function menuTitle() {
+  // Creates the title on the menu screen
   textFont(scoreFont);
   fill("white");
   textSize(width/16.6666667);
@@ -181,13 +200,21 @@ function menuTitle() {
 }
 
 function menuDinosaur() {
+  // Renders the menu dinosaur image and flips it horizontally
   scale(-1, 1);
   image(dinoMenuImg, Math.cos(frameCount * 0.025) * 5 - width*1.2, Math.cos(frameCount * 0.05) * 2 + height/2, 0.6875 * width, 0.6875 * width);
   scale(-1, 1);
 }
 
 function windowResized() {
+  // Resizes canvas
   resizeCanvas(windowWidth, windowHeight);
+
+  // Refreshes variables so the cactuses don't bug out 
+  groundHeight = height/2;
+  cactusX = width + 100;
+  cactusY = height - groundHeight - 17;
+  dinoY = height - groundHeight;
 }
 
 
