@@ -132,7 +132,7 @@ function moveCactus() {
 
 function groundVisuals() {
   // Renders the visuals of the ground object
-
+  
 }
 
 function gameOver() {
