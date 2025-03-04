@@ -4,7 +4,7 @@
 //
 // Extra for Experts:
 // - describe what you did to take this project "above and beyond"
-// - Added music to the project
+// - Added music and sound to the project
 // - Made the window of the project resizable
 
 ////////////////////////////////////////
@@ -14,7 +14,9 @@
 ////////////////////////////////////////
 
 // TODO LIST
-// - Make a gameover screen with a massive sad face in red, with a black background, include a retry button, also make it kind of scary looking with a spooky sound, almost like a jumpscare
+// - Fix the play button by changing it from triangle() into an image and scaling it using a scalar value
+// - Add a retry button to the game over screen
+// - Add ground visuals
 
 let dinoX;
 let dinoY;
@@ -26,6 +28,8 @@ let cactusSpeed;
 let buttonPressed = false;
 let gameState = "mainMenu";
 let groundHeight;
+let currentFrameCount = 0;
+let score;
 
 function preload() {
   dinoImg = loadImage("assets/Dino.png");
@@ -34,6 +38,7 @@ function preload() {
   endImg = loadImage("assets/Sad.png");
 
   soundTrack = loadSound("assets/cartoonGroove-Menu.mp3");
+  jumpSound = loadSound("assets/jump.mp3");
   
   scoreFont = loadFont("assets/PressStart2P.ttf");
 }
@@ -63,6 +68,7 @@ function draw() {
 }
 
 function mainMenu() {
+  // Executes all the functions for the main menu
   if (gameState === "mainMenu") {
     background("black");
     playButton();
@@ -73,6 +79,7 @@ function mainMenu() {
 }
 
 function gameplay() {
+  // Executes all the functions for the gameplay
   if (gameState === "gameplay") {
     background("white");
     scoreText();
@@ -104,13 +111,14 @@ function createCactus() {
 }
 
 function moveDino() {
-  // Gravity - If not touching ground then move down, if on ground and key is pressed then move up
+  // Gravity - If not touching ground then move down, if on ground and key is pressed then move up and play sound effect
   if (dinoY < height - groundHeight) {
     velocityY += 1;
     dinoY += velocityY;
   } else if (dinoY >= height - groundHeight && keyIsPressed) {
     velocityY = -jumpHeight;
     dinoY += velocityY;
+    jumpSoundEffect();
   }
 }
 
@@ -137,35 +145,38 @@ function groundVisuals() {
 
 function gameOver() {
   // Renders the gameover screen with an image of a sad face
-  background(0);
-  image(endImg, 0, 0, width, height);
-  noLoop();
-  
+  if (gameState === "gameOver") {
+    background(0);
+    image(endImg, 0, 0, width, height);
+  }
 }
 
 function collisonDetection() {
   // Detects of the cactus has collided with the dinosaur
   if (cactusX <= dinoX + 70 && cactusX >= dinoX - 30 && dinoY + 70 >= cactusY) {
+    gameState = "gameOver";
     gameOver();
   } 
 }
 
 function scoreText() {
-  // Renders the score
+  // Renders and sets the score
+  score = frameCount - currentFrameCount;
   fill(82, 82, 82); // Fill with a grayish black color
   textFont(scoreFont);
   textSize(24);
-  text(frameCount, width - width/5, width/10);
+  text(score, width - width/5, width/10);
 }
 
 function music() {  
   // Play audio
   soundTrack.loop();
-  soundTrack.setVolume(0.1);
+  soundTrack.setVolume(1);
 }
 
-function soundEffects() {
+function jumpSoundEffect() {
   // Load audio
+  jumpSound.play();
 }
 
 function playButton() {
@@ -174,21 +185,25 @@ function playButton() {
   // If mouse is over the button change the color
   noStroke();
   if (mouseX >= 75 && mouseX <= 155 && mouseY >= 200 && mouseY <= 300) {
-    fill(181, 24, 13);
+    //fill(181, 24, 13);
+    tint("blue");
   } else {
-    fill("red");
+    //fill("red");
+    tint("red");
   }
   
   // If mouse is over the button and the mouse is clicked, then begin gameplay
   if (mouseX >= 75 && mouseX <= 155 && mouseY >= 200 && mouseY <= 300 && mouseIsPressed) {
     gameState = "gameplay";
+
+    // Reset the score
+    currentFrameCount = frameCount;
   }
-  
   // Scale the play button based on window size
-  push();
-  scale(width/1000);
+  //push();
+  //scale(width/1000);
   triangle(300, 200, 300, 300, 400, 250);
-  pop();
+  //pop();
 }
 
 function menuTitle() {
@@ -202,7 +217,7 @@ function menuTitle() {
 function menuDinosaur() {
   // Renders the menu dinosaur image and flips it horizontally
   scale(-1, 1);
-  image(dinoMenuImg, Math.cos(frameCount * 0.025) * 5 - width*1.2, Math.cos(frameCount * 0.05) * 2 + height/2, 0.6875 * width, 0.6875 * width);
+  image(dinoMenuImg, Math.cos(frameCount * 0.025) * 5 - width, Math.cos(frameCount * 0.05) * 2 + height/2, 0.6875 * height, 0.6875 * height);
   scale(-1, 1);
 }
 
