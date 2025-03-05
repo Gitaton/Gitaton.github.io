@@ -14,10 +14,6 @@
 // Chrome Dino Game
 ////////////////////////////////////////
 
-// TODO LIST
-// - Add a retry button to the game over screen
-// - Add ground visuals
-
 let dinoX;
 let dinoY;
 let velocityY;
@@ -49,6 +45,7 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   music();
 
+  // Instantiate beginning values and play music
   dinoX = width/5;
   dinoY = 0;
 
@@ -141,10 +138,6 @@ function moveCactus() {
   }
 }
 
-function groundVisuals() {
-  // Renders the visuals of the ground object
-}
-
 function gameOver() {
   // Renders the gameover screen with an image of a sad face
   if (gameState === "gameOver") {
@@ -159,10 +152,8 @@ function retryButton() {
   // Renders the retry button on the game over screen, and controls mouse cursor logic
   // If the mouse is hovering over the button
   if (mouseX >= (width/2 - height/10) && mouseX <= ((width/2 - height/10) + height/5) && mouseY >= height - (height/3) && mouseY <= ((height - (height/3)) + height/5)) {
-    //fill(181, 24, 13);
     tint(181, 24, 13);
   } else {
-    //fill("red");
     noTint();
   }
 
