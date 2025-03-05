@@ -6,6 +6,7 @@
 // - describe what you did to take this project "above and beyond"
 // - Added music and sound to the project
 // - Made the window of the project resizable
+// - Changed title of html page
 
 ////////////////////////////////////////
 // Karthik Narayan
@@ -14,7 +15,6 @@
 ////////////////////////////////////////
 
 // TODO LIST
-// - Fix the play button by changing it from triangle() into an image and scaling it using a scalar value
 // - Add a retry button to the game over screen
 // - Add ground visuals
 
@@ -36,6 +36,8 @@ function preload() {
   cactusImg = loadImage("assets/Cactus_01.png");
   dinoMenuImg = loadImage("assets/DinoWhite.png");
   endImg = loadImage("assets/Sad.png");
+  playButtonImg = loadImage("assets/play.png");
+  retryButtonImg = loadImage("assets/retry.png");
 
   soundTrack = loadSound("assets/cartoonGroove-Menu.mp3");
   jumpSound = loadSound("assets/jump.mp3");
@@ -59,20 +61,21 @@ function setup() {
   cactusY = height - groundHeight - 17;
   
   cactusSpeed = 10;
-  cactusSpeedChange = 0.1;
+  cactusSpeedChange = 0.5;
 }
 
 function draw() {
   mainMenu();
   gameplay();
+  gameOver();
 }
 
 function mainMenu() {
   // Executes all the functions for the main menu
   if (gameState === "mainMenu") {
     background("black");
-    playButton();
     menuDinosaur();
+    playButton();
     menuTitle();
   }
   return;
@@ -80,6 +83,7 @@ function mainMenu() {
 
 function gameplay() {
   // Executes all the functions for the gameplay
+  noTint();
   if (gameState === "gameplay") {
     background("white");
     scoreText();
@@ -88,7 +92,6 @@ function gameplay() {
     createCactus();
     moveCactus();
     collisonDetection();
-    
     console.log(cactusSpeed);
   }
   return;
@@ -140,15 +143,47 @@ function moveCactus() {
 
 function groundVisuals() {
   // Renders the visuals of the ground object
-  
 }
 
 function gameOver() {
   // Renders the gameover screen with an image of a sad face
   if (gameState === "gameOver") {
+    soundTrack.pause();
     background(0);
     image(endImg, 0, 0, width, height);
+    retryButton();
   }
+}
+
+function retryButton() {
+  // Renders the retry button on the game over screen, and controls mouse cursor logic
+  // If the mouse is hovering over the button
+  if (mouseX >= (width/2 - height/10) && mouseX <= ((width/2 - height/10) + height/5) && mouseY >= height - (height/3) && mouseY <= ((height - (height/3)) + height/5)) {
+    //fill(181, 24, 13);
+    tint(181, 24, 13);
+  } else {
+    //fill("red");
+    noTint();
+  }
+
+  // If the mouse is pressed while hovering
+  if (mouseX >= (width/2 - height/10) && mouseX <= ((width/2 - height/10) + height/5) && mouseY >= height - (height/3) && mouseY <= ((height - (height/3)) + height/5) && mouseIsPressed) {
+    // Resets a bunch of variables to keep the loop going
+    soundTrack.loop();
+    cactusSpeed = 10;
+    groundHeight = height/2;
+    cactusX = width + 100;
+    cactusY = height - groundHeight - 17;
+    dinoY = height - groundHeight;
+    currentFrameCount = frameCount;
+    score = frameCount - currentFrameCount;
+
+    // Switches game state
+    jumpSoundEffect();
+    gameState = "gameplay";
+  }
+
+  image(retryButtonImg, width/2 - height/10, height - (height/3), height/5, height/5);
 }
 
 function collisonDetection() {
@@ -181,29 +216,26 @@ function jumpSoundEffect() {
 
 function playButton() {
   // Renders the triangular play button on the menu, and controls mouse cursor logic
-
   // If mouse is over the button change the color
-  noStroke();
-  if (mouseX >= 75 && mouseX <= 155 && mouseY >= 200 && mouseY <= 300) {
+  if (mouseX >= width/3 && mouseX <= (width/3 + height/5) && mouseY >= height/2 && mouseY <= (height/2 + height/5)) {
     //fill(181, 24, 13);
-    tint("blue");
+    tint(181, 24, 13);
   } else {
     //fill("red");
     tint("red");
   }
   
   // If mouse is over the button and the mouse is clicked, then begin gameplay
-  if (mouseX >= 75 && mouseX <= 155 && mouseY >= 200 && mouseY <= 300 && mouseIsPressed) {
+  if (mouseX >= width/3 && mouseX <= (width/3 + height/5) && mouseY >= height/2 && mouseY <= (height/2 + height/5) && mouseIsPressed) {
+    jumpSoundEffect();
     gameState = "gameplay";
 
     // Reset the score
     currentFrameCount = frameCount;
   }
-  // Scale the play button based on window size
-  //push();
-  //scale(width/1000);
-  triangle(300, 200, 300, 300, 400, 250);
-  //pop();
+
+  //triangle(300, 200, 300, 300, 400, 250);
+  image(playButtonImg, width/3, height/2, height/5, height/5);
 }
 
 function menuTitle() {
