@@ -6,7 +6,7 @@
 // - describe what you did to take this project "above and beyond"
 // - Added music and sound to the project
 // - Made the window of the project resizable
-// - Changed title of html page
+// - Changed title of html page and added a favicon
 
 ////////////////////////////////////////
 // Karthik Narayan
