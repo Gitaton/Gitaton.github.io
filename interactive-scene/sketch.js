@@ -4,7 +4,7 @@
 //
 // Extra for Experts:
 // - describe what you did to take this project "above and beyond"
-// - Added music and sound to the project
+// - Added music and sound to the project using the p5.sound library
 // - Made the window of the project resizable
 // - Changed title of html page and added a favicon
 
