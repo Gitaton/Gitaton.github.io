@@ -13,26 +13,40 @@ function draw() {
   background(220);
 
   for (let ball of ballArray) {
-    // Move Ball
-    ball.x += ball.dx;
-    ball.y += ball.dy;
-
-    // Teleport around edge of screen
-    if (ball.x > width) {
-      ball.x -= width;
-    } else if (ball.x < 0) {
-      ball.x += width;
-    }
-    if (ball.y > height) {
-      ball.y -= height;
-    } else if (ball.y < 0) {
-      ball.y += height;
-    }
-
-    // Display ball
-    fill("red");
-    circle(ball.x, ball.y, ball.radius * 2);
+    moveBalls(ball);
+    displayBalls(ball);
   }
+}
+
+function moveBalls(ball) {
+  // Move Ball
+  ball.x += ball.dx;
+  ball.y += ball.dy;
+
+  // Teleport around edge of screen
+  if (ball.x - ball.radius > width) {
+    // Off right side
+    ball.x = -ball.radius;
+  }
+  else if (ball.x + ball.radius < 0) {
+    // Off left side
+    ball.x = width + ball.radius;
+  }
+  if (ball.y - ball.radius > height) {
+    // Off Bottom
+    ball.y = -ball.radius;
+  }
+  else if (ball.y + ball.radius < 0) {
+    // Of top
+    ball.y = height + ball.radius;
+  }
+}
+
+function displayBalls(ball) {
+  // Display ball
+  noStroke();
+  fill("red");
+  circle(ball.x, ball.y, ball.radius * 2);
 }
 
 function mousePressed() {
@@ -43,7 +57,7 @@ function spawnBall() {
   let someBall = {
     x: random(width),
     y: random(height),
-    radius: random(15, 40),
+    radius: random(40, 200),
     dx: random(-5, 5),
     dy: random(-5, 5),
   };
