@@ -5,3 +5,4 @@
 
 # CS30 Projects
 - [Interactive Scene](interactive-scene)
+- [Arrays and Object Notation](arrays-and-object-notation)
