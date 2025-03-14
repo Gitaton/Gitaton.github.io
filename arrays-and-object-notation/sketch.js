@@ -8,19 +8,25 @@
 // TODO 
 // - Add p5.party
 
-let shared;
+let gameState = "mainMenu";
+let me;
+let guests;
 
 function preload() {
   // Connect to the server
   partyConnect("wss://demoserver.p5party.org", "battleMans");
 
-  // Loads shared objects
-  guests = partyLoadGuestShareds();
-
+  // Loads players shared
   me = partyLoadMyShared({
     x: 50,
     y: 50,
   });
+
+  // Loads guests shared
+  guests = partyLoadGuestShareds();
+
+  // Load Images
+  menuBackgroundImage = image();
 }
 
 function setup() {
@@ -31,14 +37,55 @@ function setup() {
 }
 
 function draw() {
-  background(220);
-  player();
-  console.log(me.x);
+  mainMenu();
+
+  if (gameState === gameplay) {
+    background(220);
+    renderGuests();
+    renderPlayer();
+  }
 }
 
-function player() {
-  fill("black");
+function mainMenu() {
+  if (gameState === "mainMenu") {
+    background(50);
+    playButton(50, "white", "Comic Sans MS");
+  }
+}
+
+function playButton(size, color, font) {
+  // Text styling
+  textFont(font);
+  textAlign(CENTER);
+
+  // If Mouse Hovering - NOT WORKING YET
+  if (mouseX < width/2 + 100) {
+    fill("black");
+    textSize(size);
+  } 
+  else {
+    fill(color);
+    textSize(size);
+  }
+
+  // Render Text
+  text("play", width/2, height/2);
+}
+
+function renderGuests() {
+  for (let guest of guests) {
+    // For every guest, draw this
+    fill("black");
+    rect(guest.x, guest.y, 50, 50);
+  }
+}
+
+function renderPlayer() {
+  // Draw the player
+  fill("blue");
   rect(me.x, me.y, 50, 50);
+
+  // Move the player
   if (keyIsDown(68)) {
     me.x += 1;
   }
