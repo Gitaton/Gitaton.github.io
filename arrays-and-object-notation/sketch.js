@@ -59,20 +59,21 @@ function mainMenu() {
 
 function playButton() {
   // Text styling
+  fill("white");
   textFont("Comic Sans MS");
   textAlign(CENTER);
 
-  // If Mouse Hovering - NOT WORKING YET
+  // If Mouse Hovering
   if (mouseX < width/2 + 75 && mouseX > width/2 - 75 && mouseY < height/2 + 15 && mouseY > height/2 - 50) {
-    fill("white");
-    playButtonTextSize = playButtonTextSize + (60 - playButtonTextSize/2);
+    playButtonTextSize = playButtonTextSize + (30 - playButtonTextSize/4);
     textSize(playButtonTextSize);
-    if (mouseIsPressed) {
+
+    // If Mouse Hovering And Mouse Left Clicked
+    if (mouseIsPressed && mouseButton === LEFT) {
       gameState = "gameplay";
     }
   } 
   else {
-    fill("black");
     playButtonTextSize = 80;
     textSize(playButtonTextSize);
   }
