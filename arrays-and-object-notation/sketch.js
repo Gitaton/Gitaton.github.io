@@ -9,8 +9,11 @@
 // - Add p5.party
 
 let gameState = "mainMenu";
+
 let me;
 let guests;
+
+let playButtonTextSize = 25;
 
 function preload() {
   // Connect to the server
@@ -38,8 +41,9 @@ function setup() {
 
 function draw() {
   mainMenu();
+  console.log(mouseX);
 
-  if (gameState === gameplay) {
+  if (gameState === "gameplay") {
     background(220);
     renderGuests();
     renderPlayer();
@@ -49,23 +53,28 @@ function draw() {
 function mainMenu() {
   if (gameState === "mainMenu") {
     background(50);
-    playButton(50, "white", "Comic Sans MS");
+    playButton();
   }
 }
 
-function playButton(size, color, font) {
+function playButton() {
   // Text styling
-  textFont(font);
+  textFont("Comic Sans MS");
   textAlign(CENTER);
 
   // If Mouse Hovering - NOT WORKING YET
-  if (mouseX < width/2 + 100) {
-    fill("black");
-    textSize(size);
+  if (mouseX < width/2 + 75 && mouseX > width/2 - 75 && mouseY < height/2 + 15 && mouseY > height/2 - 50) {
+    fill("white");
+    playButtonTextSize = playButtonTextSize + (60 - playButtonTextSize/2);
+    textSize(playButtonTextSize);
+    if (mouseIsPressed) {
+      gameState = "gameplay";
+    }
   } 
   else {
-    fill(color);
-    textSize(size);
+    fill("black");
+    playButtonTextSize = 80;
+    textSize(playButtonTextSize);
   }
 
   // Render Text
