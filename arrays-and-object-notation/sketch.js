@@ -15,6 +15,8 @@ let guests;
 
 let playButtonTextSize = 25;
 
+let charactersOnScreen = [];
+
 function preload() {
   // Connect to the server
   partyConnect("wss://demoserver.p5party.org", "battleMans");
@@ -44,9 +46,10 @@ function draw() {
   console.log(mouseX);
 
   if (gameState === "gameplay") {
-    background(220);
+    background("#87CEEB");
     renderGuests();
     renderPlayer();
+    renderGround();
   }
 }
 
@@ -102,4 +105,18 @@ function renderPlayer() {
   if (keyIsDown(65)) {
     me.x-= 1;
   }
+}
+
+function renderGround() {
+  fill("#3f9b0b");
+  rect(0, height*2/3, width, height/3);
+}
+
+function spawnCharacter() {
+  let someCharacter = {
+    type: random(1, 5),
+    x: mouseX,
+    y: mouseY,
+  };
+  charactersOnScreen.push(someCharacter);
 }
