@@ -6,7 +6,11 @@
 // - describe what you did to take this project "above and beyond"
 
 // TODO 
-// - Add p5.party
+// - GAMEPLAY
+// - MODE PICKER
+// - VISUALS : ART-STYLE : FLAT ART ... ex. Altos Adventure ... https://retrostylegames.com/blog/best-2d-art-styles-for-games/#:~:text=and%20animated%20feel.-,Flat%20Art,dimensional%20or%20'flat'%20appearance.
+// - MONEY TEXT
+// - BUTTONS THAT SPAWN CHARACTERS [W.I.P] 
 
 let gameState = "mainMenu";
 
@@ -16,15 +20,40 @@ let guests;
 let playButtonTextSize = 25;
 
 let charactersOnScreen = [];
+let characterChoices = ["red", "blue", "yellow"];
+let characterValue = [100, 15, 1000];
+
+// Temporary Character Stats
+let tankman = {
+  health: 1000,
+  value: 100,
+  damage: 100,
+  moveSpeed: 5,
+};
+
+let speedman = {
+  health: 150,
+  value: 15,
+  damage: 75,
+  moveSpeed: 30,
+};
+
+let beastman = {
+  health: 750,
+  value: 1000,
+  damage: 1000,
+  moveSpeed: 20,
+};
 
 function preload() {
   // Connect to the server
-  partyConnect("wss://demoserver.p5party.org", "battleMans");
+  partyConnect("wss://demoserver.p5party.org", "battleMans", "main");
 
   // Loads players shared
   me = partyLoadMyShared({
     x: 50,
     y: 50,
+    money: 0,
   });
 
   // Loads guests shared
@@ -42,18 +71,26 @@ function setup() {
 }
 
 function draw() {
+  // Renders the main menu
   mainMenu();
-  console.log(mouseX);
 
+  // Renders the gameplay
+  gameplay();
+}
+
+function gameplay() {
+  // Renders gameplay elements
   if (gameState === "gameplay") {
     background("#87CEEB");
-    renderGuests();
+    renderGuests(); 
     renderPlayer();
     renderGround();
+    gameplayUI();
   }
 }
 
 function mainMenu() {
+  // Renders the elements of the main menu
   if (gameState === "mainMenu") {
     background(50);
     playButton();
@@ -66,17 +103,18 @@ function playButton() {
   textFont("Comic Sans MS");
   textAlign(CENTER);
 
-  // If Mouse Hovering
+  // If Mouse Hovering then increase the text size smoothly
   if (mouseX < width/2 + 75 && mouseX > width/2 - 75 && mouseY < height/2 + 15 && mouseY > height/2 - 50) {
     playButtonTextSize = playButtonTextSize + (30 - playButtonTextSize/4);
     textSize(playButtonTextSize);
 
-    // If Mouse Hovering And Mouse Left Clicked
+    // If Mouse Hovering And Mouse Left Clicked then change gameState to gameplay
     if (mouseIsPressed && mouseButton === LEFT) {
       gameState = "gameplay";
     }
   } 
   else {
+    // Don't change the text size 
     playButtonTextSize = 80;
     textSize(playButtonTextSize);
   }
@@ -108,6 +146,7 @@ function renderPlayer() {
 }
 
 function renderGround() {
+  // Draws the ground
   fill("#3f9b0b");
   rect(0, height*2/3, width, height/3);
 }
@@ -119,4 +158,27 @@ function spawnCharacter() {
     y: mouseY,
   };
   charactersOnScreen.push(someCharacter);
+}
+
+function gameplayUI() {
+  characterSpawnButtons();
+}
+
+function moneyUI() {
+  
+}
+
+function characterSpawnButtons() {
+  let buttonSpacing = width/8;
+  let buttonSize = height/6;
+  let buttonHeight = height - height/4;
+
+  for (let i = 0; i < 3; i++) {
+    fill(characterChoices[i]);
+    rect(width/16 + i * buttonSpacing, buttonHeight, buttonSize, buttonSize);
+
+    textSize(10);
+    fill(0);
+    text(characterValue[i], width/16 + i * buttonSpacing + buttonSize/2, buttonHeight + buttonSize/2);
+  }
 }
