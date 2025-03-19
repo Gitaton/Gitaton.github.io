@@ -11,6 +11,7 @@
 // - VISUALS : ART-STYLE : FLAT ART ... ex. Altos Adventure ... https://retrostylegames.com/blog/best-2d-art-styles-for-games/#:~:text=and%20animated%20feel.-,Flat%20Art,dimensional%20or%20'flat'%20appearance.
 // - MONEY TEXT
 // - BUTTONS THAT SPAWN CHARACTERS [W.I.P] 
+// - For p5 party I gotta figure out how to swap the sides of the guests
 
 let gameState = "mainMenu";
 
@@ -19,12 +20,9 @@ let guests;
 
 let playButtonTextSize = 25;
 
-let charactersOnScreen = [];
-let characterChoices = ["red", "blue", "yellow"];
-let characterValue = [100, 15, 1000];
-
 // Temporary Character Stats
 let tankman = {
+  name: "tankman",
   health: 1000,
   value: 100,
   damage: 100,
@@ -32,6 +30,7 @@ let tankman = {
 };
 
 let speedman = {
+  name: "speedman",
   health: 150,
   value: 15,
   damage: 75,
@@ -39,11 +38,15 @@ let speedman = {
 };
 
 let beastman = {
+  name: "beastman",
   health: 750,
   value: 1000,
   damage: 1000,
   moveSpeed: 20,
 };
+
+let characterChoices = [tankman, speedman, beastman];
+let charactersOnScreen = [];
 
 function preload() {
   // Connect to the server
@@ -151,13 +154,17 @@ function renderGround() {
   rect(0, height*2/3, width, height/3);
 }
 
-function spawnCharacter() {
+function spawnCharacter(characterName, characterHealth, characterValue, characterDamage, characterMoveSpeed, characterX, characterY) {
   let someCharacter = {
-    type: random(1, 5),
-    x: mouseX,
-    y: mouseY,
+    type: characterName,
+    x: characterX,
+    y: characterY,
+    health: characterHealth,
+    value: characterValue,
+    damage: characterDamage,
+    moveSpeed: characterMoveSpeed,
   };
-  charactersOnScreen.push(someCharacter);
+  return someCharacter;
 }
 
 function gameplayUI() {
@@ -173,12 +180,12 @@ function characterSpawnButtons() {
   let buttonSize = height/6;
   let buttonHeight = height - height/4;
 
-  for (let i = 0; i < 3; i++) {
-    fill(characterChoices[i]);
+  for (let i = 0; i < characterChoices.length; i++) {
+    fill(255);
     rect(width/16 + i * buttonSpacing, buttonHeight, buttonSize, buttonSize);
 
     textSize(10);
     fill(0);
-    text(characterValue[i], width/16 + i * buttonSpacing + buttonSize/2, buttonHeight + buttonSize/2);
+    text(characterChoices[i].name + " " + characterChoices[i].value, width/16 + i * buttonSpacing + buttonSize/2, buttonHeight + buttonSize/2);
   }
 }
