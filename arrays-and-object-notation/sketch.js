@@ -32,7 +32,10 @@ let tankman = {
   health: 1000,
   value: 100,
   damage: 100,
-  moveSpeed: 5,
+  moveSpeed: 1,
+  x: 50,
+  y: 50,
+  velocityY: 0,
 };
 
 let speedman = {
@@ -40,7 +43,10 @@ let speedman = {
   health: 150,
   value: 15,
   damage: 75,
-  moveSpeed: 30,
+  moveSpeed: 3,
+  x: 50,
+  y: 50,
+  velocityY: 0,
 };
 
 let beastman = {
@@ -48,7 +54,10 @@ let beastman = {
   health: 750,
   value: 1000,
   damage: 1000,
-  moveSpeed: 20,
+  moveSpeed: 2,
+  x: 50,
+  y: 50,
+  velocityY: 0,
 };
 
 let characterChoices = [tankman, speedman, beastman];
@@ -69,7 +78,7 @@ function preload() {
   guests = partyLoadGuestShareds();
 
   // Load Images
-  menuBackgroundImage = image();
+  //menuBackgroundImage = image();
 }
 
 function setup() {
@@ -101,6 +110,8 @@ function gameplay() {
     renderGround();
     gameplayUI();
     moneyUI();
+    spawnCharacter();
+    characterMovementAndAttack();
   }
 }
 
@@ -169,19 +180,28 @@ function renderGround() {
   rect(0, height*2/3, width, height/3);
 }
 
-function spawnCharacter(characterName, characterHealth, characterValue, characterDamage, characterMoveSpeed, characterX, characterY) {
-  // let someCharacter = {
-  //   type: characterName,
-  //   x: characterX,
-  //   y: characterY,
-  //   health: characterHealth,
-  //   value: characterValue,
-  //   damage: characterDamage,
-  //   moveSpeed: characterMoveSpeed,
-  // };
-  // return someCharacter;
+function spawnCharacter() {
+  // Move Character
+  for (let i = charactersOnScreen.length-1; i >= 0; i--) {
+    // Move character forward
+    charactersOnScreen[i].x += charactersOnScreen[i].moveSpeed;
 
-  // Render Character
+    if (charactersOnScreen[i].y + 100 < height*2/3) {
+      charactersOnScreen[i].velocityY += 1;
+      charactersOnScreen[i].y += charactersOnScreen[i].velocityY;
+    } 
+    else {
+      charactersOnScreen[i].velocityY = 0;
+    }
+
+    // Render characters
+    fill("red");
+    rect(charactersOnScreen[i].x, charactersOnScreen[i].y, 100, 100);
+  }
+}
+
+function characterMovementAndAttack() {
+  
 }
 
 function gameplayUI() {
@@ -223,6 +243,7 @@ function spawnCharacterButtonPress() {
     if (dist(mouseX, mouseY, width/16 + i * buttonSpacing + buttonSize/2, buttonHeight + buttonSize/2) <= buttonSize/2) {
       // Spawn specific character if player can afford
       if (me.money >= characterChoices[i].value) {
+        charactersOnScreen.push(structuredClone(characterChoices[i]));
         text(characterChoices[i].name, width/2, height/2);
         me.money -= characterChoices[i].value;
       }
