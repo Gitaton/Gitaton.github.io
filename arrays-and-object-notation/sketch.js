@@ -20,6 +20,10 @@ let guests;
 
 let playButtonTextSize = 25;
 
+let buttonSpacing;
+let buttonSize;
+let buttonHeight;
+
 // Temporary Character Stats
 let tankman = {
   name: "tankman",
@@ -71,6 +75,11 @@ function setup() {
 
   // Show p5.party panel
   partyToggleInfo(true);
+
+  // Intialize button variables
+  buttonSpacing = width/8;
+  buttonSize = height/6;
+  buttonHeight = height - height/4;
 }
 
 function draw() {
@@ -89,6 +98,7 @@ function gameplay() {
     renderPlayer();
     renderGround();
     gameplayUI();
+    moneyUI();
   }
 }
 
@@ -128,16 +138,19 @@ function playButton() {
 
 function renderGuests() {
   for (let guest of guests) {
-    // For every guest, draw this
-    fill("black");
-    rect(guest.x, guest.y, 50, 50);
+    if (guest !== me) {
+      // For every guest, draw this
+      fill("red");
+      text(guest.money, width - width/16, height/16);
+      //rect(guest.x, guest.y, 50, 50);
+    }
   }
 }
 
 function renderPlayer() {
   // Draw the player
   fill("blue");
-  rect(me.x, me.y, 50, 50);
+  //rect(me.x, me.y, 50, 50);
 
   // Move the player
   if (keyIsDown(68)) {
@@ -155,31 +168,42 @@ function renderGround() {
 }
 
 function spawnCharacter(characterName, characterHealth, characterValue, characterDamage, characterMoveSpeed, characterX, characterY) {
-  let someCharacter = {
-    type: characterName,
-    x: characterX,
-    y: characterY,
-    health: characterHealth,
-    value: characterValue,
-    damage: characterDamage,
-    moveSpeed: characterMoveSpeed,
-  };
-  return someCharacter;
+  // let someCharacter = {
+  //   type: characterName,
+  //   x: characterX,
+  //   y: characterY,
+  //   health: characterHealth,
+  //   value: characterValue,
+  //   damage: characterDamage,
+  //   moveSpeed: characterMoveSpeed,
+  // };
+  // return someCharacter;
+
+  // Render Character
 }
 
 function gameplayUI() {
   characterSpawnButtons();
+  //spawnCharacterButtonPress();
 }
 
 function moneyUI() {
-  
+  let roundedMoney;
+  // Text styling
+  textSize(50);
+
+  me.money = me.money + 10;
+  roundedMoney = Math.round(me.money);
+
+  if (me.money < 0) {
+    me.money = 0;
+  }
+
+  text(roundedMoney, width/16, height/16);
+
 }
 
 function characterSpawnButtons() {
-  let buttonSpacing = width/8;
-  let buttonSize = height/6;
-  let buttonHeight = height - height/4;
-
   for (let i = 0; i < characterChoices.length; i++) {
     fill(255);
     rect(width/16 + i * buttonSpacing, buttonHeight, buttonSize, buttonSize);
@@ -187,5 +211,25 @@ function characterSpawnButtons() {
     textSize(10);
     fill(0);
     text(characterChoices[i].name + " " + characterChoices[i].value, width/16 + i * buttonSpacing + buttonSize/2, buttonHeight + buttonSize/2);
+  }
+}
+
+function spawnCharacterButtonPress() {
+  // For every character spawn button
+  for (let i = characterChoices.length; i >= 0; i--) {
+    // Check distance from mouse to buttons
+    if (dist(mouseX, mouseY, width/16 + i * buttonSpacing + buttonSize/2, buttonHeight + buttonSize/2) <= buttonSize/2) {
+      // Spawn specific character if player can afford
+      if (me.money >= characterChoices[i].value) {
+        text(characterChoices[i].name, width/2, height/2);
+        me.money -= characterChoices[i].value;
+      }
+    }
+  }
+}
+
+function mouseClicked() {
+  if (gameState === "gameplay") {
+    spawnCharacterButtonPress();
   }
 }
