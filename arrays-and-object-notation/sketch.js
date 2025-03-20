@@ -9,11 +9,12 @@
 // - GAMEPLAY
 // - MODE PICKER
 // - VISUALS : ART-STYLE : FLAT ART ... ex. Altos Adventure ... https://retrostylegames.com/blog/best-2d-art-styles-for-games/#:~:text=and%20animated%20feel.-,Flat%20Art,dimensional%20or%20'flat'%20appearance.
-// - MONEY TEXT
 // - BUTTONS THAT SPAWN CHARACTERS [W.I.P] 
 // - For p5 party I gotta figure out how to swap the sides of the guests
 
 let gameState = "mainMenu";
+
+let room = prompt("Enter room name");
 
 let me;
 let guests;
@@ -54,7 +55,7 @@ let charactersOnScreen = [];
 
 function preload() {
   // Connect to the server
-  partyConnect("wss://demoserver.p5party.org", "battleMans", "main");
+  partyConnect("wss://demoserver.p5party.org", "battleMans", room);
 
   // Loads players shared
   me = partyLoadMyShared({
