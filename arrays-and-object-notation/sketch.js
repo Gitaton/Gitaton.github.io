@@ -89,7 +89,7 @@ function preload() {
   music = loadSound("assets/Cozy_Forest.mp3");
 
   // Load images
-  //menuBackgroundImage = image();
+  menuBackgroundImage = loadImage("assets/Background.png");
 }
 
 function setup() {
@@ -134,7 +134,15 @@ function gameplay() {
 function mainMenu() {
   // Renders the elements of the main menu
   if (gameState === "mainMenu") {
+    // Background color just incase
     background(27, 38, 59);
+
+    // Render background image
+    push();
+    tint("red");
+    image(menuBackgroundImage, 0, 0, width, height);
+    pop();
+
     titleText();
     playButton();
   }
