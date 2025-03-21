@@ -1,4 +1,4 @@
-// Wave defense 2D but multiplayer like clash royale or something | Dino Bash 
+// BattleMans | A mix of BTD and Battle Cats/Dino Bash
 // Karthik Narayan
 // Mar.12, 2025
 //
@@ -7,6 +7,7 @@
 // - I used p5.party to create a multiplayer game (2 players max per lobby/room)
 // - Trig functions as x or y values to create smooth animations
 // - Music/Sound Effects
+// - p5 pop() and push() along with the tint() function
 //
 // HOW TO PLAY - Your goal is to place your troops so they make it to the other side of the screen, but watch out, your opponent has troops of their own (Buttons at the bottom of the screen)
 // SIDENOTE - If you lose, you will get disconnected from the server
