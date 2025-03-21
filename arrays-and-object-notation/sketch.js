@@ -4,12 +4,13 @@
 //
 // Extra for Experts:
 // - describe what you did to take this project "above and beyond"
+// - I used p5.party to create a multiplayer game (2 players max per lobby/room)
+// - Trig functions as x or y values to create smooth animations
+// - Music/Sound Effects
 
 // TODO 
-// - GAMEPLAY
 // - VISUALS : ART-STYLE : FLAT ART ... ex. Altos Adventure ... https://retrostylegames.com/blog/best-2d-art-styles-for-games/#:~:text=and%20animated%20feel.-,Flat%20Art,dimensional%20or%20'flat'%20appearance.
 // - AUDIO
-// - CHARACTER DAMAGE
 
 let gameState = "mainMenu";
 
@@ -21,6 +22,7 @@ let guests;
 
 let playButtonTextSize = 25;
 
+// Global variables for the character spawn buttons
 let buttonSpacing;
 let buttonSize;
 let buttonHeight;
@@ -63,7 +65,6 @@ let beastman = {
 };
 
 let characterChoices = [tankman, speedman, beastman];
-//let charactersOnScreen = [];
 
 function preload() {
   // Connect to the server
@@ -91,7 +92,7 @@ function setup() {
   // Show p5.party panel
   partyToggleInfo(true);
 
-  // Intialize button variables
+  // Intialize spawn button variables
   buttonSpacing = width/8;
   buttonSize = height/6;
   buttonHeight = height - height/4;
@@ -109,7 +110,7 @@ function gameplay() {
   // Renders gameplay elements
   if (gameState === "gameplay") {
     background("#87CEEB");
-    renderGuests(); 
+    renderGuestText(); 
     renderGround();
     gameplayUI();
     moneyUI();
@@ -169,7 +170,7 @@ function playButton() {
   text(textChanger, width/2, height/2);
 }
 
-function renderGuests() {
+function renderGuestText() {
   for (let guest of guests) {
     if (guest !== me) {
       // For every guest, render the money and health text
@@ -192,6 +193,7 @@ function spawnCharacter() {
     // Move character forward
     me.charactersOnScreen[i].x += me.charactersOnScreen[i].moveSpeed;
 
+    // If character above the ground, add gravity
     if (me.charactersOnScreen[i].y + me.charactersOnScreen[i].height < height*2/3) {
       me.charactersOnScreen[i].velocityY += 1;
       me.charactersOnScreen[i].y += me.charactersOnScreen[i].velocityY;
@@ -282,18 +284,22 @@ function takeGlobalDamage() {
 }
 
 function gameplayUI() {
+  // Render the player's gameplay UI elements
   characterSpawnButtons();
-  //spawnCharacterButtonPress();
 }
 
 function moneyUI() {
+  // Initialize local variable
   let roundedMoney;
+
   // Text styling
   textSize(50);
 
+  // Add an amount to money every frame, then round it
   me.money = me.money + 10;
   roundedMoney = Math.round(me.money);
 
+  // If money is ever below 0, bring it back up to 0
   if (me.money < 0) {
     me.money = 0;
   }
@@ -303,15 +309,17 @@ function moneyUI() {
 
   // Render Global Health Text
   text("♡ " + me.globalHealth + "%", width/16, height/7);
-
 }
 
 function characterSpawnButtons() {
   // Render the 3 character spawn buttons based on the number of character choices
   for (let i = 0; i < characterChoices.length; i++) {
+    // Creates each rectangular button
     fill(255);
+    noStroke();
     rect(width/16 + i * buttonSpacing, buttonHeight, buttonSize, buttonSize);
 
+    // Draws the text inside the button
     textSize(10);
     fill(0);
     text(characterChoices[i].name + " - " + characterChoices[i].value, width/16 + i * buttonSpacing + buttonSize/2, buttonHeight + buttonSize/2);
