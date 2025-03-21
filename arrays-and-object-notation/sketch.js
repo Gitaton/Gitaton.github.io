@@ -35,6 +35,7 @@ let tankman = {
   x: 50,
   y: 200,
   velocityY: 0,
+  height: 100,
 };
 
 let speedman = {
@@ -46,6 +47,7 @@ let speedman = {
   x: 50,
   y: 200,
   velocityY: 0,
+  height: 51,
 };
 
 let beastman = {
@@ -57,6 +59,7 @@ let beastman = {
   x: 50,
   y: 200,
   velocityY: 0,
+  height: 290,
 };
 
 let characterChoices = [tankman, speedman, beastman];
@@ -189,7 +192,7 @@ function spawnCharacter() {
     // Move character forward
     me.charactersOnScreen[i].x += me.charactersOnScreen[i].moveSpeed;
 
-    if (me.charactersOnScreen[i].y + 100 < height*2/3) {
+    if (me.charactersOnScreen[i].y + me.charactersOnScreen[i].height < height*2/3) {
       me.charactersOnScreen[i].velocityY += 1;
       me.charactersOnScreen[i].y += me.charactersOnScreen[i].velocityY;
     } 
@@ -199,7 +202,15 @@ function spawnCharacter() {
 
     // Render characters
     fill("red");
-    rect(me.charactersOnScreen[i].x, me.charactersOnScreen[i].y, 100, 100);
+    if (me.charactersOnScreen[i].name === "tankman") {
+      rect(me.charactersOnScreen[i].x, me.charactersOnScreen[i].y, 100, 100);
+    }
+    else if (me.charactersOnScreen[i].name === "speedman") {
+      circle(me.charactersOnScreen[i].x, me.charactersOnScreen[i].y, 100);
+    }
+    else if (me.charactersOnScreen[i].name === "beastman") {
+      rect(me.charactersOnScreen[i].x, me.charactersOnScreen[i].y, 100, 300);
+    }
   }
 }
 
@@ -232,7 +243,15 @@ function renderGuestCharacters() {
       // Render the guest's characters on the opposite side of the screen
       for (let i = guest.charactersOnScreen.length-1; i>=0; i--) {
         fill("blue");
-        rect(width - guest.charactersOnScreen[i].x, guest.charactersOnScreen[i].y, 100, 100);
+        if (guest.charactersOnScreen[i].name === "tankman") {
+          rect(width - guest.charactersOnScreen[i].x, guest.charactersOnScreen[i].y, 100, 100);
+        }
+        else if (guest.charactersOnScreen[i].name === "speedman") {
+          circle(width - guest.charactersOnScreen[i].x, guest.charactersOnScreen[i].y, 100);
+        }
+        else if (guest.charactersOnScreen[i].name === "beastman") {
+          rect(width - guest.charactersOnScreen[i].x, guest.charactersOnScreen[i].y, 100, 300);
+        }
       }
     }
   }
