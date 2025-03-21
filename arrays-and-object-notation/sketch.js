@@ -7,6 +7,9 @@
 // - I used p5.party to create a multiplayer game (2 players max per lobby/room)
 // - Trig functions as x or y values to create smooth animations
 // - Music/Sound Effects
+//
+// HOW TO PLAY - Your goal is to place your troops so they make it to the other side of the screen, but watch out, your opponent has troops of their own (Buttons at the bottom of the screen)
+// SIDENOTE - If you lose, you will get disconnected from the server
 
 // TODO 
 // - VISUALS : ART-STYLE : FLAT ART ... ex. Altos Adventure ... https://retrostylegames.com/blog/best-2d-art-styles-for-games/#:~:text=and%20animated%20feel.-,Flat%20Art,dimensional%20or%20'flat'%20appearance.
@@ -30,7 +33,7 @@ let buttonHeight;
 let tankman = {
   name: "tankman",
   health: 1000,
-  value: 100,
+  value: 80,
   damage: 100,
   moveSpeed: 1,
   x: 50,
@@ -42,7 +45,7 @@ let tankman = {
 let speedman = {
   name: "speedman",
   health: 150,
-  value: 15,
+  value: 30,
   damage: 75,
   moveSpeed: 3,
   x: 50,
@@ -53,8 +56,8 @@ let speedman = {
 
 let beastman = {
   name: "beastman",
-  health: 750,
-  value: 1000,
+  health: 5750,
+  value: 500,
   damage: 1000,
   moveSpeed: 2,
   x: 50,
@@ -93,12 +96,16 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
 
   // Show p5.party panel
-  partyToggleInfo(true);
+  partyToggleInfo(false);
 
   // Intialize spawn button variables
   buttonSpacing = width/8;
   buttonSize = height/6;
   buttonHeight = height - height/4;
+
+  // Visual Styling
+  strokeWeight(4);
+  stroke(color("white"));
 }
 
 function draw() {
@@ -112,7 +119,7 @@ function draw() {
 function gameplay() {
   // Renders gameplay elements
   if (gameState === "gameplay") {
-    background("#87CEEB");
+    background(27, 38, 59);
     renderGuestText(); 
     renderGround();
     gameplayUI();
@@ -127,7 +134,7 @@ function gameplay() {
 function mainMenu() {
   // Renders the elements of the main menu
   if (gameState === "mainMenu") {
-    background(50);
+    background(27, 38, 59);
     titleText();
     playButton();
   }
@@ -136,7 +143,7 @@ function mainMenu() {
 function titleText() {
   // Text styling
   textSize(100);
-  fill("white");
+  fill("red");
   textFont("Comic Sans MS");
   textAlign(CENTER);
 
@@ -146,7 +153,7 @@ function titleText() {
 
 function playButton() {
   // Text styling
-  fill("white");
+  fill("blue");
   textFont("Comic Sans MS");
   textAlign(CENTER);
   let textChanger;
@@ -176,9 +183,13 @@ function playButton() {
 function renderGuestText() {
   for (let guest of guests) {
     if (guest !== me) {
+      // Round guest money
+      let roundedMoney;
+      roundedMoney = Math.round(guest.money);
+
       // For every guest, render the money and health text
-      fill("red");
-      text("$ " + guest.money, width - width/16, height/16);
+      fill("blue");
+      text("$ " + roundedMoney, width - width/16, height/16);
       text("♡ " + guest.globalHealth + "%", width - width/16, height/7);
     }
   }
@@ -186,7 +197,7 @@ function renderGuestText() {
 
 function renderGround() {
   // Draws the ground
-  fill("#3f9b0b");
+  fill(13, 27, 42);
   rect(0, height*2/3, width, height/3);
 }
 
@@ -278,6 +289,7 @@ function takeGlobalDamage() {
           else {
             me.globalHealth = 0;
             partyDisconnect();
+            partyToggleInfo(true);
           }
           // let index = guest.charactersOnScreen.indexOf(guest.charactersOnScreen[i]);
           // guest.charactersOnScreen.splice(index, 1);
@@ -297,10 +309,11 @@ function moneyUI() {
   let roundedMoney;
 
   // Text styling
+  fill("red");
   textSize(50);
 
   // Add an amount to money every frame, then round it
-  me.money = me.money + 10;
+  me.money = me.money + 0.1;
   roundedMoney = Math.round(me.money);
 
   // If money is ever below 0, bring it back up to 0
@@ -319,13 +332,11 @@ function characterSpawnButtons() {
   // Render the 3 character spawn buttons based on the number of character choices
   for (let i = 0; i < characterChoices.length; i++) {
     // Creates each rectangular button
-    fill(255);
-    strokeWeight(4);
-    stroke(color("white"));
+    fill("red");
     rect(width/16 + i * buttonSpacing, buttonHeight, buttonSize, buttonSize);
 
     // Draws the text inside the button
-    textSize(10);
+    textSize(20);
     fill(0);
     text(characterChoices[i].name + " - " + characterChoices[i].value, width/16 + i * buttonSpacing + buttonSize/2, buttonHeight + buttonSize/2);
   }
