@@ -15,6 +15,7 @@
 
 let gameState = "mainMenu";
 
+// Lets the player choose a room
 let room = prompt("Enter room name");
 
 let me;
@@ -26,7 +27,7 @@ let buttonSpacing;
 let buttonSize;
 let buttonHeight;
 
-// Temporary Character Stats
+// Character Stats
 let tankman = {
   name: "tankman",
   health: 1000,
@@ -34,7 +35,7 @@ let tankman = {
   damage: 100,
   moveSpeed: 1,
   x: 50,
-  y: 50,
+  y: 200,
   velocityY: 0,
 };
 
@@ -45,7 +46,7 @@ let speedman = {
   damage: 75,
   moveSpeed: 3,
   x: 50,
-  y: 50,
+  y: 200,
   velocityY: 0,
 };
 
@@ -56,12 +57,12 @@ let beastman = {
   damage: 1000,
   moveSpeed: 2,
   x: 50,
-  y: 50,
+  y: 200,
   velocityY: 0,
 };
 
 let characterChoices = [tankman, speedman, beastman];
-let charactersOnScreen = [];
+//let charactersOnScreen = [];
 
 function preload() {
   // Connect to the server
@@ -72,6 +73,8 @@ function preload() {
     x: 50,
     y: 50,
     money: 0,
+    charactersOnScreen: [],
+    globalHealth: 100,
   });
 
   // Loads guests shared
@@ -106,12 +109,12 @@ function gameplay() {
   if (gameState === "gameplay") {
     background("#87CEEB");
     renderGuests(); 
-    renderPlayer();
     renderGround();
     gameplayUI();
     moneyUI();
     spawnCharacter();
-    characterMovementAndAttack();
+    renderGuestCharacters();
+    takeGlobalDamage();
   }
 }
 
@@ -152,25 +155,11 @@ function playButton() {
 function renderGuests() {
   for (let guest of guests) {
     if (guest !== me) {
-      // For every guest, draw this
+      // For every guest, render the money and health text
       fill("red");
-      text(guest.money, width - width/16, height/16);
-      //rect(guest.x, guest.y, 50, 50);
+      text("$ " + guest.money, width - width/16, height/16);
+      text("♡ " + guest.globalHealth + "%", width - width/16, height/7);
     }
-  }
-}
-
-function renderPlayer() {
-  // Draw the player
-  fill("blue");
-  //rect(me.x, me.y, 50, 50);
-
-  // Move the player
-  if (keyIsDown(68)) {
-    me.x += 1;
-  }
-  if (keyIsDown(65)) {
-    me.x-= 1;
   }
 }
 
@@ -182,26 +171,59 @@ function renderGround() {
 
 function spawnCharacter() {
   // Move Character
-  for (let i = charactersOnScreen.length-1; i >= 0; i--) {
+  for (let i = me.charactersOnScreen.length-1; i >= 0; i--) {
     // Move character forward
-    charactersOnScreen[i].x += charactersOnScreen[i].moveSpeed;
+    me.charactersOnScreen[i].x += me.charactersOnScreen[i].moveSpeed;
 
-    if (charactersOnScreen[i].y + 100 < height*2/3) {
-      charactersOnScreen[i].velocityY += 1;
-      charactersOnScreen[i].y += charactersOnScreen[i].velocityY;
+    if (me.charactersOnScreen[i].y + 100 < height*2/3) {
+      me.charactersOnScreen[i].velocityY += 1;
+      me.charactersOnScreen[i].y += me.charactersOnScreen[i].velocityY;
     } 
     else {
-      charactersOnScreen[i].velocityY = 0;
+      me.charactersOnScreen[i].velocityY = 0;
     }
 
     // Render characters
     fill("red");
-    rect(charactersOnScreen[i].x, charactersOnScreen[i].y, 100, 100);
+    rect(me.charactersOnScreen[i].x, me.charactersOnScreen[i].y, 100, 100);
   }
 }
 
-function characterMovementAndAttack() {
-  
+function renderGuestCharacters() {
+  // For every guest not including yourself
+  for (let guest of guests) {
+    if (guest !== me) {
+      // Render the guest's characters on the opposite side of the screen
+      for (let i = guest.charactersOnScreen.length-1; i>=0; i--) {
+        fill("blue");
+        rect(width - guest.charactersOnScreen[i].x, guest.charactersOnScreen[i].y, 100, 100);
+      }
+    }
+  }
+}
+
+function takeGlobalDamage() {
+  // For every guest
+  for (let guest of guests) {
+    // If the guest is not the player
+    if (guest !== me) {
+      for (let i = guest.charactersOnScreen.length-1; i>=0; i--) {
+        // Goes through all the characters and checks if they have gone past the screen
+        if (width - guest.charactersOnScreen[i].x <= -100) {
+          // If so, drain the players health and disconnect them
+          if (me.globalHealth > 0) {
+            me.globalHealth -= 1;
+          }
+          else {
+            me.globalHealth = 0;
+            partyDisconnect();
+          }
+          // let index = guest.charactersOnScreen.indexOf(guest.charactersOnScreen[i]);
+          // guest.charactersOnScreen.splice(index, 1);
+        }
+      }
+    }
+  }
 }
 
 function gameplayUI() {
@@ -221,18 +243,23 @@ function moneyUI() {
     me.money = 0;
   }
 
-  text(roundedMoney, width/16, height/16);
+  // Render Money Text
+  text("$ "+ roundedMoney, width/16, height/16);
+
+  // Render Global Health Text
+  text("♡ " + me.globalHealth + "%", width/16, height/7);
 
 }
 
 function characterSpawnButtons() {
+  // Render the 3 character spawn buttons based on the number of character choices
   for (let i = 0; i < characterChoices.length; i++) {
     fill(255);
     rect(width/16 + i * buttonSpacing, buttonHeight, buttonSize, buttonSize);
 
     textSize(10);
     fill(0);
-    text(characterChoices[i].name + " " + characterChoices[i].value, width/16 + i * buttonSpacing + buttonSize/2, buttonHeight + buttonSize/2);
+    text(characterChoices[i].name + " - " + characterChoices[i].value, width/16 + i * buttonSpacing + buttonSize/2, buttonHeight + buttonSize/2);
   }
 }
 
@@ -243,8 +270,8 @@ function spawnCharacterButtonPress() {
     if (dist(mouseX, mouseY, width/16 + i * buttonSpacing + buttonSize/2, buttonHeight + buttonSize/2) <= buttonSize/2) {
       // Spawn specific character if player can afford
       if (me.money >= characterChoices[i].value) {
-        charactersOnScreen.push(structuredClone(characterChoices[i]));
-        text(characterChoices[i].name, width/2, height/2);
+        // Reduce money amount & Add the selected character to the screen
+        me.charactersOnScreen.push(structuredClone(characterChoices[i]));
         me.money -= characterChoices[i].value;
       }
     }
@@ -252,6 +279,7 @@ function spawnCharacterButtonPress() {
 }
 
 function mouseClicked() {
+  // If in gameplay and the mouse is clicked on the button, spawn a character
   if (gameState === "gameplay") {
     spawnCharacterButtonPress();
   }
