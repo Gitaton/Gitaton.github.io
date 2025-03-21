@@ -7,9 +7,7 @@
 
 // TODO 
 // - GAMEPLAY
-// - MODE PICKER
 // - VISUALS : ART-STYLE : FLAT ART ... ex. Altos Adventure ... https://retrostylegames.com/blog/best-2d-art-styles-for-games/#:~:text=and%20animated%20feel.-,Flat%20Art,dimensional%20or%20'flat'%20appearance.
-// - For p5 party I gotta figure out how to swap the sides of the guests
 // - AUDIO
 // - CHARACTER DAMAGE
 
@@ -115,6 +113,7 @@ function gameplay() {
     spawnCharacter();
     renderGuestCharacters();
     takeGlobalDamage();
+    characterDeath();
   }
 }
 
@@ -122,8 +121,20 @@ function mainMenu() {
   // Renders the elements of the main menu
   if (gameState === "mainMenu") {
     background(50);
+    titleText();
     playButton();
   }
+}
+
+function titleText() {
+  // Text styling
+  textSize(100);
+  fill("white");
+  textFont("Comic Sans MS");
+  textAlign(CENTER);
+
+  // Render text
+  text("BattleMans", Math.tan(frameCount * 0.01)*10 + width/2, height/4);
 }
 
 function playButton() {
@@ -131,11 +142,13 @@ function playButton() {
   fill("white");
   textFont("Comic Sans MS");
   textAlign(CENTER);
+  let textChanger;
 
   // If Mouse Hovering then increase the text size smoothly
   if (mouseX < width/2 + 75 && mouseX > width/2 - 75 && mouseY < height/2 + 15 && mouseY > height/2 - 50) {
     playButtonTextSize = playButtonTextSize + (30 - playButtonTextSize/4);
     textSize(playButtonTextSize);
+    textChanger = "(ง'̀-'́)ง play (ง'̀-'́)ง";
 
     // If Mouse Hovering And Mouse Left Clicked then change gameState to gameplay
     if (mouseIsPressed && mouseButton === LEFT) {
@@ -146,10 +159,11 @@ function playButton() {
     // Don't change the text size 
     playButtonTextSize = 80;
     textSize(playButtonTextSize);
+    textChanger = "play";
   }
 
   // Render Text
-  text("play", width/2, height/2);
+  text(textChanger, width/2, height/2);
 }
 
 function renderGuests() {
@@ -186,6 +200,28 @@ function spawnCharacter() {
     // Render characters
     fill("red");
     rect(me.charactersOnScreen[i].x, me.charactersOnScreen[i].y, 100, 100);
+  }
+}
+
+function characterDeath() {
+  // For every one of my characters
+  for (let i = me.charactersOnScreen.length-1; i >= 0; i--) {
+    // Look through all of the guest characters
+    for (let guest of guests) {
+      if (guest !== me) {
+        for (let e = guest.charactersOnScreen.length-1; e>=0; e--) {
+          // If both the player character and guest character are close to eachother then attack!
+          if (me.charactersOnScreen[i].x - (width - guest.charactersOnScreen[e].x) < 50 && me.charactersOnScreen[i].x - (width - guest.charactersOnScreen[e].x) > 0) {
+            me.charactersOnScreen[i].health -= guest.charactersOnScreen[e].damage;
+            
+            // If character has no health left, then remove it
+            if (me.charactersOnScreen[i].health <= 0) {
+              me.charactersOnScreen.splice(i, 1);
+            }
+          }
+        }
+      }
+    }
   }
 }
 
