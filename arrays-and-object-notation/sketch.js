@@ -10,9 +10,7 @@
 //
 // HOW TO PLAY - Your goal is to place your troops so they make it to the other side of the screen, but watch out, your opponent has troops of their own (Buttons at the bottom of the screen)
 // SIDENOTE - If you lose, you will get disconnected from the server
-
-// TODO 
-// - VISUALS : ART-STYLE : FLAT ART ... ex. Altos Adventure ... https://retrostylegames.com/blog/best-2d-art-styles-for-games/#:~:text=and%20animated%20feel.-,Flat%20Art,dimensional%20or%20'flat'%20appearance.
+// Credit to the creators of Altos Adventure for the background image
 
 let gameState = "mainMenu";
 
