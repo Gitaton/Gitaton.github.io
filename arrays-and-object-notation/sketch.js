@@ -378,3 +378,8 @@ function mouseClicked() {
     spawnCharacterButtonPress();
   }
 }
+
+function windowResized() {
+  // Changes the canvas size if the window is resized
+  resizeCanvas(windowWidth, windowHeight);
+}
