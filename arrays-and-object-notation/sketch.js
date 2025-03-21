@@ -10,7 +10,6 @@
 
 // TODO 
 // - VISUALS : ART-STYLE : FLAT ART ... ex. Altos Adventure ... https://retrostylegames.com/blog/best-2d-art-styles-for-games/#:~:text=and%20animated%20feel.-,Flat%20Art,dimensional%20or%20'flat'%20appearance.
-// - AUDIO
 
 let gameState = "mainMenu";
 
@@ -82,7 +81,11 @@ function preload() {
   // Loads guests shared
   guests = partyLoadGuestShareds();
 
-  // Load Images
+  // Load audio
+  deathSound = loadSound("assets/Death.mp3");
+  music = loadSound("assets/Cozy_Forest.mp3");
+
+  // Load images
   //menuBackgroundImage = image();
 }
 
@@ -227,8 +230,9 @@ function characterDeath() {
           if (me.charactersOnScreen[i].x - (width - guest.charactersOnScreen[e].x) < 50 && me.charactersOnScreen[i].x - (width - guest.charactersOnScreen[e].x) > 0) {
             me.charactersOnScreen[i].health -= guest.charactersOnScreen[e].damage;
             
-            // If character has no health left, then remove it
+            // If character has no health left, then remove it and play a sound
             if (me.charactersOnScreen[i].health <= 0) {
+              deathSound.play();
               me.charactersOnScreen.splice(i, 1);
             }
           }
@@ -316,7 +320,8 @@ function characterSpawnButtons() {
   for (let i = 0; i < characterChoices.length; i++) {
     // Creates each rectangular button
     fill(255);
-    noStroke();
+    strokeWeight(4);
+    stroke(color("white"));
     rect(width/16 + i * buttonSpacing, buttonHeight, buttonSize, buttonSize);
 
     // Draws the text inside the button
@@ -342,6 +347,14 @@ function spawnCharacterButtonPress() {
 }
 
 function mouseClicked() {
+  // Play background music
+  let musicPlaying = false;
+  if (musicPlaying === false) {
+    music.setVolume(0.05);
+    music.play();
+    musicPlaying = true;
+  }
+
   // If in gameplay and the mouse is clicked on the button, spawn a character
   if (gameState === "gameplay") {
     spawnCharacterButtonPress();
