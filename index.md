@@ -8,6 +8,7 @@
 - [2D Array Grid][2d-array-grid]
 - [Grid Neighbours](neighbors)
 - [Rectangle Grid](rectangle-grid)
+- [Game of Life](game-of-life)
 
 # CS30 Projects
 - [Interactive Scene](interactive-scene)
