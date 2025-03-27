@@ -29,3 +29,17 @@ function generateGridMap(cols, rows) {
   }
   return newGrid;
 }
+
+function displayGrid(cols, rows) {
+  for (let x = 0; x < rows; x++) {
+    for (let y = 0; y < cols; y++) {
+      if (grid[y][x] === 1) {
+        fill("blue");
+      }
+      else if (grid[y][x] === 0) {
+        fill("red");
+      }
+      //rect()
+    }
+  }
+}
