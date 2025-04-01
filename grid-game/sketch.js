@@ -105,3 +105,21 @@ function mouseClicked() {
   playerPiece.y = Math.ceil(mouseY/CELL_SIZE) - 1;
   playerPiece.x = Math.ceil(mouseX/CELL_SIZE) - 1;
 }
+
+function BFSPathfinding(grid, start, end) {
+  // Queue of the path taken
+  queue = [];
+  // Push the first path to into the queue
+  queue.push(start);
+
+  while (queue > 0) {
+    // Current node/grid item
+    let node = queue.shift();
+    if (node === end) {
+      return node;
+    }
+
+    // For nodes/grid objects next to the current node/grid item push them to the queue
+    for ()
+  } 
+}
