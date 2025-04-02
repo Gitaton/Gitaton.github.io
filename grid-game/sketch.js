@@ -16,6 +16,7 @@ let rows;
 let cols;
 let oldY;
 let oldX;
+let queue;  
 
 let playerPiece = {
   x: 0,
@@ -24,11 +25,33 @@ let playerPiece = {
   oldY: 0,
 };
 
+// Create a balloon spawn point
+let balloonSpawnLocation = {
+  x: 0,
+  y: 0,
+};
+
+// Create a balloon end point
+let balloonEndLocation = {
+  x: 0,
+  y: 0,
+};
+
 function setup() {
   createCanvas(windowWidth, windowHeight);
 
   cols = width/CELL_SIZE;
   rows = height/CELL_SIZE;
+
+  balloonSpawnLocation = {
+    x: Math.floor(random(cols/2)),
+    y: Math.floor(random(rows)),
+  };
+
+  balloonEndLocation = {
+    x: Math.floor(random(cols/2, cols)),
+    y: Math.floor(random(rows)),
+  };
 
   grid = generateGridMap(cols, rows);
   balloonStartAndEnd();
@@ -38,6 +61,7 @@ function draw() {
   background(220);
   displayGrid(cols, rows);
   displayPiece();
+  BFSPathfinding(grid, balloonSpawnLocation, balloonEndLocation);
 }
 
 function generateGridMap(cols, rows) {
@@ -72,17 +96,7 @@ function displayGrid(cols, rows) {
 }
 
 function balloonStartAndEnd() {
-  // Create a balloon spawn point
-  let balloonSpawnLocation = {
-    x: Math.floor(random(cols/2)),
-    y: Math.floor(random(rows)),
-  };
-
-  // Create a balloon end point
-  let balloonEndLocation = {
-    x: Math.floor(random(cols/2, cols)),
-    y: Math.floor(random(rows)),
-  };
+  // Render Balloon Start and End
   grid[balloonSpawnLocation.y][balloonSpawnLocation.x] = BALLOON_START;
   grid[balloonEndLocation.y][balloonEndLocation.x] = BALLOON_END;
 }
@@ -90,7 +104,7 @@ function balloonStartAndEnd() {
 function displayPiece() {
   // Change the tile to the player
   grid[playerPiece.y][playerPiece.x] = PLAYER;
-  console.log(playerPiece.x, playerPiece.y);
+  // console.log(playerPiece.x, playerPiece.y);
 
   // Set old piece location
   playerPiece.oldY = playerPiece.y;
@@ -112,14 +126,21 @@ function BFSPathfinding(grid, start, end) {
   // Push the first path to into the queue
   queue.push(start);
 
-  while (queue > 0) {
+  while (queue.length > 0) {
     // Current node/grid item
     let node = queue.shift();
+    let nodeX = node.x;
+    let nodeY = node.y;
     if (node === end) {
       return node;
     }
 
-    // For nodes/grid objects next to the current node/grid item push them to the queue
-    for ()
+    // For nodes/grid objects next to the current node/grid item push them to the queue / N, S, W, E 
+    // Find neighbours of node
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        
+      }
+    }
   } 
 }
