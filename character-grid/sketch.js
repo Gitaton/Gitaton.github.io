@@ -4,6 +4,7 @@
 
 
 let grid = [];
+let cordGrid = [];
 let cols;
 let rows;
 const CELL_SIZE = 50;

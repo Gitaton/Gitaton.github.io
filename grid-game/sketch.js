@@ -16,7 +16,8 @@ let rows;
 let cols;
 let oldY;
 let oldX;
-let queue;  
+let queue;
+let visited;
 
 let playerPiece = {
   x: 0,
@@ -120,27 +121,41 @@ function mouseClicked() {
   playerPiece.x = Math.ceil(mouseX/CELL_SIZE) - 1;
 }
 
-function BFSPathfinding(grid, start, end) {
+function BFSPathfinding(grid, start, end) { // Resource : https://www.reddit.com/r/leetcode/comments/125tvft/how_do_i_start_with_bfs_on_matrix/
   // Queue of the path taken
+  visited = [];
   queue = [];
   // Push the first path to into the queue
   queue.push(start);
 
+  let length;
   while (queue.length > 0) {
-    // Current node/grid item
-    let node = queue.shift();
-    let nodeX = node.x;
-    let nodeY = node.y;
-    if (node === end) {
-      return node;
-    }
-
-    // For nodes/grid objects next to the current node/grid item push them to the queue / N, S, W, E 
-    // Find neighbours of node
-    for (let y = 0; y < rows; y++) {
-      for (let x = 0; x < cols; x++) {
-        
+    for (let i = 0; i < queue.length; i++) {
+      // Current node/grid item
+      let node = queue.shift();
+      if (node === end) {
+        return length;
       }
+      
+      // For nodes/grid objects next to the current node/grid item push them to the queue / N, S, W, E 
+      // Find neighbours of node
+      let neighbourOne = { // Up
+        x: node.x,
+        y: node.y - 1,
+      };
+      let neighbourTwo = { // Down
+        x: node.x,
+        y: node.y + 1,
+      };
+      let neighbourThree = { // Left 
+        x: node.x - 1,
+        y: node.y,
+      };
+      let neighbourFour = { // Right
+        x: node.x + 1,
+        y: node.y,
+      };
     }
-  } 
+    length += 1;
+  }
 }
