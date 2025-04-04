@@ -56,13 +56,17 @@ function setup() {
 
   grid = generateGridMap(cols, rows);
   balloonStartAndEnd();
+  
+  visited = console.log(BFSPathfinding(grid, balloonSpawnLocation, balloonEndLocation));
+  console.log(visited);
 }
 
 function draw() {
   background(220);
   displayGrid(cols, rows);
   displayPiece();
-  BFSPathfinding(grid, balloonSpawnLocation, balloonEndLocation);
+
+  // Display visited in grid
 }
 
 function generateGridMap(cols, rows) {
@@ -121,41 +125,44 @@ function mouseClicked() {
   playerPiece.x = Math.ceil(mouseX/CELL_SIZE) - 1;
 }
 
-function BFSPathfinding(grid, start, end) { // Resource : https://www.reddit.com/r/leetcode/comments/125tvft/how_do_i_start_with_bfs_on_matrix/
-  // Queue of the path taken
+// Currently breaks because the while loop goes on forever >>> The neighbours x and y values turn negative
+function BFSPathfinding(grid, start, end) { // Resource : https://www.youtube.com/watch?v=cS-198wtfj0
   visited = [];
   queue = [];
-  // Push the first path to into the queue
+
+  console.log(visited);
+
+  visited.push(start);
   queue.push(start);
 
-  let length;
   while (queue.length > 0) {
-    for (let i = 0; i < queue.length; i++) {
-      // Current node/grid item
-      let node = queue.shift();
-      if (node === end) {
-        return length;
+    let currentNode = queue.shift();
+
+    let neighbourOne = { // Up
+      x: currentNode.x,
+      y: currentNode.y - 1,
+    };
+    let neighbourTwo = { // Down
+      x: currentNode.x,
+      y: currentNode.y + 1,
+    };
+    let neighbourThree = { // Left 
+      x: currentNode.x - 1,
+      y: currentNode.y,
+    };
+    let neighbourFour = { // Right
+      x: currentNode.x + 1,
+      y: currentNode.y,
+    };
+
+    let neighbours = [neighbourOne, neighbourTwo, neighbourThree, neighbourFour];
+
+    for (let neighbour of neighbours) { // For every neighbour of current node
+      if (!visited.includes(neighbour)) { // neighbour is not visited
+        visited.push(neighbour);
+        queue.push(neighbour);
       }
-      
-      // For nodes/grid objects next to the current node/grid item push them to the queue / N, S, W, E 
-      // Find neighbours of node
-      let neighbourOne = { // Up
-        x: node.x,
-        y: node.y - 1,
-      };
-      let neighbourTwo = { // Down
-        x: node.x,
-        y: node.y + 1,
-      };
-      let neighbourThree = { // Left 
-        x: node.x - 1,
-        y: node.y,
-      };
-      let neighbourFour = { // Right
-        x: node.x + 1,
-        y: node.y,
-      };
     }
-    length += 1;
+    return visited;
   }
 }
