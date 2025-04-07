@@ -20,6 +20,7 @@ let queue;
 let visited;
 let previous;
 let path;
+let neighbours;
 
 let playerPiece = {
   x: 0,
@@ -60,9 +61,12 @@ function setup() {
   balloonStartAndEnd();
   
   previous = BFSPathfinding(grid, balloonSpawnLocation, balloonEndLocation);
-  path = reconstructPath(grid, balloonSpawnLocation, balloonEndLocation, previous);
+  // path = reconstructPath(grid, balloonSpawnLocation, balloonEndLocation, previous);
   // console.log(previous);
-  console.log(path);
+  //console.log(path);
+
+  console.log(visited);
+  console.log(previous);
 }
 
 function draw() {
@@ -141,7 +145,7 @@ function BFSPathfinding(grid, start, end) { // Resource : https://www.youtube.co
     let currentNode = queue.shift();
 
     if (currentNode.x === end.x && currentNode.y === end.y) {
-      //return "Noah way it's the end";
+      console.log("Noah way it's the end");
       return previous;
     }
 
@@ -162,7 +166,7 @@ function BFSPathfinding(grid, start, end) { // Resource : https://www.youtube.co
       y: currentNode.y,
     };
 
-    let neighbours = [neighbourOne, neighbourTwo, neighbourThree, neighbourFour];
+    neighbours = [neighbourOne, neighbourTwo, neighbourThree, neighbourFour];
 
     for (let neighbour of neighbours) { // For every neighbour of current node
       let stringVisited = JSON.stringify(visited);
@@ -179,7 +183,7 @@ function reconstructPath(grid, start, end, previous) {
   path = [];
 
   // Broken - From the end node work backwards, finding the parent node of each neighbour until you make it to the start
-  for (let i = previous[previous.length - 1]; i !== undefined; i = previous.indexOf(JSON.stringify(i))) {
+  for (let i = 1; i !== undefined; i = previous.indexOf(JSON.stringify(i))) {
     path.push(previous[i]);
   }
 
