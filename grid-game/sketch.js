@@ -18,6 +18,8 @@ let oldY;
 let oldX;
 let queue;
 let visited;
+let previous;
+let path;
 
 let playerPiece = {
   x: 0,
@@ -28,14 +30,14 @@ let playerPiece = {
 
 // Create a balloon spawn point
 let balloonSpawnLocation = {
-  x: 0,
-  y: 0,
+  x: 3,
+  y: 3,
 };
 
 // Create a balloon end point
 let balloonEndLocation = {
-  x: 0,
-  y: 0,
+  x: 7,
+  y: 1,
 };
 
 function setup() {
@@ -44,29 +46,29 @@ function setup() {
   cols = width/CELL_SIZE;
   rows = height/CELL_SIZE;
 
-  balloonSpawnLocation = {
-    x: Math.floor(random(cols/2)),
-    y: Math.floor(random(rows)),
-  };
+  // balloonSpawnLocation = {
+  //   x: Math.floor(random(cols/2)),
+  //   y: Math.floor(random(rows)),
+  // };
 
-  balloonEndLocation = {
-    x: Math.floor(random(cols/2, cols)),
-    y: Math.floor(random(rows)),
-  };
+  // balloonEndLocation = {
+  //   x: Math.floor(random(cols/2, cols)),
+  //   y: Math.floor(random(rows)),
+  // };
 
   grid = generateGridMap(cols, rows);
   balloonStartAndEnd();
   
-  visited = console.log(BFSPathfinding(grid, balloonSpawnLocation, balloonEndLocation));
-  console.log(visited);
+  previous = BFSPathfinding(grid, balloonSpawnLocation, balloonEndLocation);
+  // path = reconstructPath(grid, balloonSpawnLocation, balloonEndLocation, previous);
+  console.log(previous);
+  // console.log(path);
 }
 
 function draw() {
   background(220);
   displayGrid(cols, rows);
   displayPiece();
-
-  // Display visited in grid
 }
 
 function generateGridMap(cols, rows) {
@@ -130,13 +132,18 @@ function BFSPathfinding(grid, start, end) { // Resource : https://www.youtube.co
   visited = [];
   queue = [];
 
-  console.log(visited);
-
   visited.push(start);
   queue.push(start);
 
+  previous = [];
+
   while (queue.length > 0) {
     let currentNode = queue.shift();
+
+    if (currentNode.x === end.x && currentNode.y === end.y) {
+      //return "Noah way it's the end";
+      return previous;
+    }
 
     let neighbourOne = { // Up
       x: currentNode.x,
@@ -158,11 +165,25 @@ function BFSPathfinding(grid, start, end) { // Resource : https://www.youtube.co
     let neighbours = [neighbourOne, neighbourTwo, neighbourThree, neighbourFour];
 
     for (let neighbour of neighbours) { // For every neighbour of current node
-      if (!visited.includes(neighbour)) { // neighbour is not visited
+      let stringVisited = JSON.stringify(visited);
+      if (!stringVisited.includes(JSON.stringify(neighbour))) { // neighbour is not visited
         visited.push(neighbour);
         queue.push(neighbour);
+        previous.push(currentNode);
       }
     }
-    return visited;
   }
+}
+
+function reconstructPath(grid, start, end, previous) {
+  path = [];
+
+  // Broken - From the end node work backwards, finding the parent node of each neighbour until you make it to the start
+  for (let i = previous.length - 1; i !== undefined; i = previous.indexOf(previous[i - 4])) {
+    path.push(previous[i]);
+  }
+
+  path.reverse();
+
+  return path;
 }
