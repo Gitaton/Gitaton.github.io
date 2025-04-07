@@ -60,9 +60,9 @@ function setup() {
   balloonStartAndEnd();
   
   previous = BFSPathfinding(grid, balloonSpawnLocation, balloonEndLocation);
-  // path = reconstructPath(grid, balloonSpawnLocation, balloonEndLocation, previous);
-  console.log(previous);
-  // console.log(path);
+  path = reconstructPath(grid, balloonSpawnLocation, balloonEndLocation, previous);
+  // console.log(previous);
+  console.log(path);
 }
 
 function draw() {
@@ -179,7 +179,7 @@ function reconstructPath(grid, start, end, previous) {
   path = [];
 
   // Broken - From the end node work backwards, finding the parent node of each neighbour until you make it to the start
-  for (let i = previous.length - 1; i !== undefined; i = previous.indexOf(previous[i - 4])) {
+  for (let i = previous[previous.length - 1]; i !== undefined; i = previous.indexOf(JSON.stringify(i))) {
     path.push(previous[i]);
   }
 
