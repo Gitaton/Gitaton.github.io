@@ -61,18 +61,17 @@ function setup() {
   balloonStartAndEnd();
   
   previous = BFSPathfinding(grid, balloonSpawnLocation, balloonEndLocation);
-  // path = reconstructPath(grid, balloonSpawnLocation, balloonEndLocation, previous);
-  // console.log(previous);
-  //console.log(path);
-
-  console.log(visited);
-  console.log(previous);
+  path = reconstructPath(grid, balloonSpawnLocation, balloonEndLocation, previous);
+  //console.log(previous);
+  console.log(path);
+  drawPath(grid, path);
 }
 
 function draw() {
   background(220);
   displayGrid(cols, rows);
   displayPiece();
+  
 }
 
 function generateGridMap(cols, rows) {
@@ -135,11 +134,10 @@ function mouseClicked() {
 function BFSPathfinding(grid, start, end) { // Resource : https://www.youtube.com/watch?v=cS-198wtfj0
   visited = [];
   queue = [];
+  previous = {}; // Map each node to its parent
 
   visited.push(start);
   queue.push(start);
-
-  previous = [];
 
   while (queue.length > 0) {
     let currentNode = queue.shift();
@@ -173,21 +171,30 @@ function BFSPathfinding(grid, start, end) { // Resource : https://www.youtube.co
       if (!stringVisited.includes(JSON.stringify(neighbour))) { // neighbour is not visited
         visited.push(neighbour);
         queue.push(neighbour);
-        previous.push(currentNode);
+        previous[`${neighbour.x},${neighbour.y}`] = currentNode; // Map neighbour to current node
       }
     }
   }
+
+  return previous; // Return previous even if the end is not reached
 }
 
 function reconstructPath(grid, start, end, previous) {
   path = [];
 
-  // Broken - From the end node work backwards, finding the parent node of each neighbour until you make it to the start
-  for (let i = 1; i !== undefined; i = previous.indexOf(JSON.stringify(i))) {
-    path.push(previous[i]);
+  // From the end node work backwards, finding the parent node of each neighbour until you make it to the start
+  for (let i = end; i !== undefined; i = previous[`${i.x},${i.y}`]) {
+    path.push(i);
   }
 
-  path.reverse();
+  path.reverse(); 
 
   return path;
+}
+
+// Draws the path
+function drawPath(grid, path) {
+  for (let i = 0; i < path.length; i++) {
+    grid[path[i].y][path[i].x] = PLAYER;
+  }
 }
