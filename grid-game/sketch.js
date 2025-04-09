@@ -4,13 +4,14 @@
 //
 // Extra for Experts:
 // - describe what you did to take this project "above and beyond"
-// TODO:
-// - PATHFINDING - TRY BFS PATHFINDING FIRST
+// - BFS Pathfinding
 
 const CELL_SIZE = 100;
 const PLAYER = "P";
 const BALLOON_START = "S";
 const BALLOON_END = "E";
+const ROAD = "R";
+
 let grid;
 let rows;
 let cols;
@@ -29,41 +30,47 @@ let playerPiece = {
   oldY: 0,
 };
 
-// Create a balloon spawn point
+// Instantiate a balloon spawn point
 let balloonSpawnLocation = {
-  x: 3,
-  y: 3,
+  x: 0,
+  y: 0,
 };
 
-// Create a balloon end point
+// Instantiate a balloon end point
 let balloonEndLocation = {
-  x: 7,
-  y: 1,
+  x: 0,
+  y: 0,
 };
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(windowWidth * 0.9, windowHeight * 0.9);
+
+  stroke(40, 54, 24); // Changes the stroke color to a dark green
+  strokeWeight(3); // Increases the stroke width
 
   cols = width/CELL_SIZE;
   rows = height/CELL_SIZE;
 
-  // balloonSpawnLocation = {
-  //   x: Math.floor(random(cols/2)),
-  //   y: Math.floor(random(rows)),
-  // };
+  // Set the balloon spawn location
+  balloonSpawnLocation = {
+    x: Math.floor(random(2, cols/2 - 2)),
+    y: Math.floor(random(2, rows - 2)),
+  };
 
-  // balloonEndLocation = {
-  //   x: Math.floor(random(cols/2, cols)),
-  //   y: Math.floor(random(rows)),
-  // };
+  // Set the balloon end location
+  balloonEndLocation = {
+    x: Math.floor(random(cols/2 + 2, cols - 2)),
+    y: Math.floor(random(2, rows - 2)),
+  };
 
   grid = generateGridMap(cols, rows);
+
+  // Place the balloon start and end on the grid
   balloonStartAndEnd();
   
-  previous = BFSPathfinding(grid, balloonSpawnLocation, balloonEndLocation);
-  path = reconstructPath(grid, balloonSpawnLocation, balloonEndLocation, previous);
-  //console.log(previous);
-  console.log(path);
+  // BFS Pathfinding functions
+  previous = BFSPathfinding(balloonSpawnLocation, balloonEndLocation);
+  path = reconstructPath(balloonEndLocation, previous);
   drawPath(grid, path);
 }
 
@@ -71,7 +78,6 @@ function draw() {
   background(220);
   displayGrid(cols, rows);
   displayPiece();
-  
 }
 
 function generateGridMap(cols, rows) {
@@ -89,7 +95,7 @@ function displayGrid(cols, rows) {
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
       if (grid[y][x] === 0) {
-        fill("orangered");
+        fill(color(96, 108, 56)); // Fill with dark green
       }
       else if (grid[y][x] === PLAYER) {
         fill("white");
@@ -98,7 +104,10 @@ function displayGrid(cols, rows) {
         fill("green");
       }
       else if (grid[y][x] === BALLOON_END) {
-        fill("black");
+        fill("red");
+      }
+      else if (grid[y][x] === ROAD) {
+        fill(color(221, 161, 94)); // Fill with a biege like color
       }
       rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
     }
@@ -130,8 +139,7 @@ function mouseClicked() {
   playerPiece.x = Math.ceil(mouseX/CELL_SIZE) - 1;
 }
 
-// Currently breaks because the while loop goes on forever >>> The neighbours x and y values turn negative
-function BFSPathfinding(grid, start, end) { // Resource : https://www.youtube.com/watch?v=cS-198wtfj0
+function BFSPathfinding(start, end) { 
   visited = [];
   queue = [];
   previous = {}; // Map each node to its parent
@@ -167,8 +175,11 @@ function BFSPathfinding(grid, start, end) { // Resource : https://www.youtube.co
     neighbours = [neighbourOne, neighbourTwo, neighbourThree, neighbourFour];
 
     for (let neighbour of neighbours) { // For every neighbour of current node
-      let stringVisited = JSON.stringify(visited);
-      if (!stringVisited.includes(JSON.stringify(neighbour))) { // neighbour is not visited
+      if (
+        !visited.some(v => v.x === neighbour.x && v.y === neighbour.y) &&
+        neighbour.x >= 0 && neighbour.x < cols &&
+        neighbour.y >= 0 && neighbour.y < rows
+      ) { // neighbour is not visited
         visited.push(neighbour);
         queue.push(neighbour);
         previous[`${neighbour.x},${neighbour.y}`] = currentNode; // Map neighbour to current node
@@ -179,7 +190,7 @@ function BFSPathfinding(grid, start, end) { // Resource : https://www.youtube.co
   return previous; // Return previous even if the end is not reached
 }
 
-function reconstructPath(grid, start, end, previous) {
+function reconstructPath(end, previous) {
   path = [];
 
   // From the end node work backwards, finding the parent node of each neighbour until you make it to the start
@@ -187,7 +198,9 @@ function reconstructPath(grid, start, end, previous) {
     path.push(i);
   }
 
-  path.reverse(); 
+  path.reverse(); // Make the path go from start to finish instead of the opposite
+  path.shift(); // Delete start node from path
+  path.pop(); // Delete end node from path
 
   return path;
 }
@@ -195,6 +208,6 @@ function reconstructPath(grid, start, end, previous) {
 // Draws the path
 function drawPath(grid, path) {
   for (let i = 0; i < path.length; i++) {
-    grid[path[i].y][path[i].x] = PLAYER;
+    grid[path[i].y][path[i].x] = ROAD;
   }
 }
