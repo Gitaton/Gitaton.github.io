@@ -22,6 +22,9 @@ let visited;
 let previous;
 let path;
 let neighbours;
+let money = 0;
+
+let font;
 
 let playerPiece = {
   x: 0,
@@ -41,6 +44,10 @@ let balloonEndLocation = {
   x: 0,
   y: 0,
 };
+
+function preload() {
+  font = loadFont("VCR_OSD_MONO_1.001.ttf");
+}
 
 function setup() {
   createCanvas(windowWidth * 0.9, windowHeight * 0.9);
@@ -78,6 +85,8 @@ function draw() {
   background(220);
   displayGrid(cols, rows);
   displayPiece();
+  countMoney();
+  selectedCharacterText();
 }
 
 function generateGridMap(cols, rows) {
@@ -151,7 +160,6 @@ function BFSPathfinding(start, end) {
     let currentNode = queue.shift();
 
     if (currentNode.x === end.x && currentNode.y === end.y) {
-      console.log("Noah way it's the end");
       return previous;
     }
 
@@ -210,4 +218,28 @@ function drawPath(grid, path) {
   for (let i = 0; i < path.length; i++) {
     grid[path[i].y][path[i].x] = ROAD;
   }
+}
+
+function countMoney() {
+  if (millis() % 1000 < 20 && millis() % 1000 > 0) { // Counts up by $100 every 1000ms or 1 second -> The greater than and less than are there as security b/c if you lag the millis function skips past certain values
+    money += 100;
+  }
+
+  // Text Styling
+  fill(color(255, 255, 255));
+  textAlign(RIGHT);
+  textFont(font);
+  textSize(30);
+
+  text(`$${money}`, width - width/32, height/5);
+}
+
+function selectedCharacterText() {
+  // Text Styling
+  fill(color(255, 255, 255));
+  textAlign(RIGHT);
+  textFont(font);
+  textSize(30);
+
+  text("Character", width - width/32, height/8);
 }
