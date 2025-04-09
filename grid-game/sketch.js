@@ -6,6 +6,8 @@
 // - describe what you did to take this project "above and beyond"
 // - BFS Pathfinding
 
+// COLOR PALETTE: https://coolors.co/palette/606c38-283618-fefae0-dda15e-bc6c25
+
 const CELL_SIZE = 100;
 const PLAYER = "P";
 const BALLOON_START = "S";
