@@ -13,6 +13,9 @@ const PLAYER = "P";
 const BALLOON_START = "S";
 const BALLOON_END = "E";
 const ROAD = "R";
+const MONEY_TIMER = 2000; // Time between each increase of money
+const MONEY_AMOUNT_PER_CYCLE = 100;
+const STARTING_HEALTH = 100;
 
 let grid;
 let rows;
@@ -24,7 +27,10 @@ let visited;
 let previous;
 let path;
 let neighbours;
+let characters;
+let currentCharacter;
 let money = 0;
+let health = STARTING_HEALTH;
 
 let font;
 
@@ -34,6 +40,43 @@ let playerPiece = {
   oldX: 0, 
   oldY: 0,
 };
+
+// Character Stats
+let beastMan = {
+  name: "beastMan",
+  x: 0,
+  y: 0,
+  price: 1000,
+  attackSpeed: 10,
+  damage: 100,
+  gridValue: "B",
+  targetingRadius: 4, 
+};
+
+let tankMan = {
+  name: "tankMan",
+  x: 0,
+  y: 0,
+  price: 500,
+  attackSpeed: 5,
+  damage: 150, 
+  gridValue: "T",
+  targetingRadius: 3, 
+};
+
+let regularMan = {
+  name: "regularMan",
+  x: 0,
+  y: 0,
+  price: 100,
+  attackSpeed: 10,
+  damage: 30,
+  gridValue: "M",
+  targetingRadius: 2,
+};
+
+characters = [beastMan, tankMan, regularMan];
+currentCharacter = characters[0];
 
 // Instantiate a balloon spawn point
 let balloonSpawnLocation = {
@@ -53,6 +96,8 @@ function preload() {
 
 function setup() {
   createCanvas(windowWidth * 0.9, windowHeight * 0.9);
+
+  cursor(CROSS); // Changes the appearance of the cursor
 
   stroke(40, 54, 24); // Changes the stroke color to a dark green
   strokeWeight(3); // Increases the stroke width
@@ -89,6 +134,7 @@ function draw() {
   displayPiece();
   countMoney();
   selectedCharacterText();
+  countHealth();
 }
 
 function generateGridMap(cols, rows) {
@@ -223,8 +269,8 @@ function drawPath(grid, path) {
 }
 
 function countMoney() {
-  if (millis() % 1000 < 20 && millis() % 1000 > 0) { // Counts up by $100 every 1000ms or 1 second -> The greater than and less than are there as security b/c if you lag the millis function skips past certain values
-    money += 100;
+  if (millis() % MONEY_TIMER < 20 && millis() % MONEY_TIMER > 0) { // Counts up by $100 every 1000ms or 1 second -> The greater than and less than are there as security b/c if you lag the millis function skips past certain values
+    money += MONEY_AMOUNT_PER_CYCLE;
   }
 
   // Text Styling
@@ -233,15 +279,45 @@ function countMoney() {
   textFont(font);
   textSize(30);
 
-  text(`$${money}`, width - width/32, height/5);
+  text(`$${money}`, width - width/32, height/5); // Renders money text
 }
 
-function selectedCharacterText() {
+function selectedCharacterText() { // Renders selected character text
   // Text Styling
   fill(color(255, 255, 255));
   textAlign(RIGHT);
   textFont(font);
   textSize(30);
 
-  text("Character", width - width/32, height/8);
+  text(currentCharacter.name, width - width/32, height/8);
+}
+
+function countHealth() { 
+  // Text Styling
+  fill(color("red"));
+  textAlign(LEFT);
+  textFont(font);
+  textSize(30);
+
+  text(`Health: ${health}`, width/32, height/8); // Renders health text
+}
+
+function mouseWheel(event) {
+  if (event.delta > 0) { // Mouse scrolled up - Scroll through characters 
+    if (characters.indexOf(currentCharacter) !== 2) {
+      currentCharacter = characters[characters.indexOf(currentCharacter) + 1];
+    }
+    else {
+      currentCharacter = characters[0];
+    }
+  }
+  else { // Mouse scrolled down - Scroll through characters 
+    console.log(characters.indexOf(currentCharacter));
+    if (characters.indexOf(currentCharacter) !== 0) {
+      currentCharacter = characters[characters.indexOf(currentCharacter) - 1];
+    }
+    else {
+      currentCharacter = characters[characters.length - 1];
+    }
+  }
 }
