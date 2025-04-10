@@ -5,8 +5,17 @@
 // Extra for Experts:
 // - describe what you did to take this project "above and beyond"
 // - BFS Pathfinding
+// - Loading and using a new font
+// - CSS Styling: box shadow, border 
+// - Maps
+// - Template literals
 
 // COLOR PALETTE: https://coolors.co/palette/606c38-283618-fefae0-dda15e-bc6c25
+
+// TODO:
+// - Enemies
+// - Bullets/Damage
+// - Health
 
 const CELL_SIZE = 100;
 const PLAYER = "P";
@@ -16,6 +25,7 @@ const ROAD = "R";
 const MONEY_TIMER = 2000; // Time between each increase of money
 const MONEY_AMOUNT_PER_CYCLE = 100;
 const STARTING_HEALTH = 100;
+const ENEMY_INTERVAL = 2000;
 
 let grid;
 let rows;
@@ -31,6 +41,11 @@ let characters;
 let currentCharacter;
 let money = 0;
 let health = STARTING_HEALTH;
+let cannotAfford = false;
+let charactersOnScreen = [];
+let enemiesOnScreen = [];
+let enemyTimer = 0;
+let cycleTwice = false;
 
 let font;
 
@@ -73,6 +88,15 @@ let regularMan = {
   damage: 30,
   gridValue: "M",
   targetingRadius: 2,
+};
+
+let regularEnemy = {
+  oldX: 0,
+  oldY: 0,
+  x: 0,
+  y: 0,
+  damage: 15,
+  currentIndexOnPath: 0,
 };
 
 characters = [beastMan, tankMan, regularMan];
@@ -135,6 +159,9 @@ function draw() {
   countMoney();
   selectedCharacterText();
   countHealth();
+  cannotAffordText();
+  spawnEnemy();
+  renderEnemies();
 }
 
 function generateGridMap(cols, rows) {
@@ -166,6 +193,15 @@ function displayGrid(cols, rows) {
       else if (grid[y][x] === ROAD) {
         fill(color(221, 161, 94)); // Fill with a biege like color
       }
+      else if (grid[y][x] === beastMan.gridValue) {
+        fill("yellow");
+      }
+      else if (grid[y][x] === tankMan.gridValue) {
+        fill("CornflowerBlue");
+      }
+      else if (grid[y][x] === regularMan.gridValue) {
+        fill("orange");
+      }
       rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
     }
   }
@@ -178,22 +214,34 @@ function balloonStartAndEnd() {
 }
 
 function displayPiece() {
-  // Change the tile to the player
-  grid[playerPiece.y][playerPiece.x] = PLAYER;
-  // console.log(playerPiece.x, playerPiece.y);
+  grid[currentCharacter.y][currentCharacter.x] = currentCharacter.gridValue;
 
-  // Set old piece location
-  playerPiece.oldY = playerPiece.y;
-  playerPiece.oldX = playerPiece.x;
+  // Clear (0, 0)
+  grid[0][0] = 0;
 }
 
 function mouseClicked() {
-  // Clear old piece
-  grid[playerPiece.oldY][playerPiece.oldX] = 0;
+  // If the player can afford the current character & is not placing over the path or start/end, then place it down
+  if (money >= currentCharacter.price &&
+     grid[Math.ceil(mouseY/CELL_SIZE) - 1][Math.ceil(mouseX/CELL_SIZE) - 1] !== ROAD &&
+     grid[Math.ceil(mouseY/CELL_SIZE) - 1][Math.ceil(mouseX/CELL_SIZE) - 1] !== BALLOON_START &&
+     grid[Math.ceil(mouseY/CELL_SIZE) - 1][Math.ceil(mouseX/CELL_SIZE) - 1] !== BALLOON_END
+  ) { 
+    // Subtract price from money
+    money -= currentCharacter.price;
+    cannotAfford = false;
 
-  // Find the x and y positions relative to the grid
-  playerPiece.y = Math.ceil(mouseY/CELL_SIZE) - 1;
-  playerPiece.x = Math.ceil(mouseX/CELL_SIZE) - 1;
+    // Change location of the selected character to new location
+    currentCharacter.y = Math.ceil(mouseY/CELL_SIZE) - 1;
+    currentCharacter.x = Math.ceil(mouseX/CELL_SIZE) - 1;
+
+    charactersOnScreen.push(currentCharacter);
+
+    grid[currentCharacter.y][currentCharacter.x] = currentCharacter.gridValue; // Instatiate character on grid
+  }
+  else {
+    cannotAfford = true;
+  }
 }
 
 function BFSPathfinding(start, end) { 
@@ -289,7 +337,7 @@ function selectedCharacterText() { // Renders selected character text
   textFont(font);
   textSize(30);
 
-  text(currentCharacter.name, width - width/32, height/8);
+  text(`${currentCharacter.name} - $${currentCharacter.price}`, width - width/32, height/8);
 }
 
 function countHealth() { 
@@ -302,6 +350,56 @@ function countHealth() {
   text(`Health: ${health}`, width/32, height/8); // Renders health text
 }
 
+function cannotAffordText() {
+  if (cannotAfford === true) {
+    // Text Styling
+    fill(color("red"));
+    textAlign(LEFT);
+    textFont(font);
+    textSize(20);
+
+    text("Cannot Afford", mouseX + width/100, mouseY); 
+
+    if (sin(0.01 * millis()) < 0) { // Lasts a little bit of time, a gamble however
+      cannotAfford = false;
+    }
+  }
+}
+
+function spawnEnemy() {
+  if (millis() - enemyTimer > ENEMY_INTERVAL) {
+    enemiesOnScreen.push(structuredClone(regularEnemy)); // Add an enemy to the screen
+    
+    // Move enemy
+    for (let enemy of enemiesOnScreen) {
+      console.log(enemy);
+      // Delete old enemy
+      if (enemy.currentIndexOnPath !== 0) {
+        enemy.oldY = path[enemy.currentIndexOnPath - 1].y;
+        enemy.oldX = path[enemy.currentIndexOnPath - 1].x;
+      }
+
+      enemy.y = path[enemy.currentIndexOnPath].y;
+      enemy.x = path[enemy.currentIndexOnPath].x;
+
+      if (cycleTwice === true) {
+        enemy.currentIndexOnPath += 1;
+        cycleTwice = false;
+      }
+    }
+    
+    enemyTimer = millis(); // Reset Timer
+    cycleTwice = true;
+  }
+}
+
+function renderEnemies() {
+  for (let enemy of enemiesOnScreen) {
+    grid[enemy.oldY][enemy.oldX] = ROAD;
+    grid[enemy.y][enemy.x] = PLAYER;
+  }
+}
+
 function mouseWheel(event) {
   if (event.delta > 0) { // Mouse scrolled up - Scroll through characters 
     if (characters.indexOf(currentCharacter) !== 2) {
@@ -312,7 +410,6 @@ function mouseWheel(event) {
     }
   }
   else { // Mouse scrolled down - Scroll through characters 
-    console.log(characters.indexOf(currentCharacter));
     if (characters.indexOf(currentCharacter) !== 0) {
       currentCharacter = characters[characters.indexOf(currentCharacter) - 1];
     }
