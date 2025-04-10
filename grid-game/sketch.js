@@ -9,16 +9,18 @@
 // - CSS Styling: box shadow, border 
 // - Maps
 // - Template literals
+// - p5.sound | Music & Sound
+//
+// Instructions:
+// - Scroll Wheel to choose a character
+// - Click to place selected character
+// - Enemies will go from the green square to the red square, enemy health is displayed in red above each enemy
+// - Characters will only attack tiles adjacent to their own
+// - Stop the enemies from making it to the end (the red tile)
 
-// COLOR PALETTE: https://coolors.co/palette/606c38-283618-fefae0-dda15e-bc6c25
-
-// TODO:
-// - Enemies
-// - Bullets/Damage
-// - Health
 
 const CELL_SIZE = 100;
-const PLAYER = "P";
+const ENEMY = "P";
 const BALLOON_START = "S";
 const BALLOON_END = "E";
 const ROAD = "R";
@@ -30,8 +32,6 @@ const ENEMY_INTERVAL = 2000;
 let grid;
 let rows;
 let cols;
-let oldY;
-let oldX;
 let queue;
 let visited;
 let previous;
@@ -45,18 +45,9 @@ let cannotAfford = false;
 let charactersOnScreen = [];
 let enemiesOnScreen = [];
 let enemyTimer = 0;
-let cycleTwice = false;
-
 let font;
 
-let playerPiece = {
-  x: 0,
-  y: 0,
-  oldX: 0, 
-  oldY: 0,
-};
-
-// Character Stats
+// Character & Enemy Stats
 let beastMan = {
   name: "beastMan",
   x: 0,
@@ -74,7 +65,7 @@ let tankMan = {
   y: 0,
   price: 500,
   attackSpeed: 5,
-  damage: 150, 
+  damage: 25, 
   gridValue: "T",
   targetingRadius: 3, 
 };
@@ -85,17 +76,16 @@ let regularMan = {
   y: 0,
   price: 100,
   attackSpeed: 10,
-  damage: 30,
+  damage: 10,
   gridValue: "M",
   targetingRadius: 2,
 };
 
 let regularEnemy = {
-  oldX: 0,
-  oldY: 0,
   x: 0,
   y: 0,
   damage: 15,
+  health: 100,
   currentIndexOnPath: 0,
 };
 
@@ -116,12 +106,17 @@ let balloonEndLocation = {
 
 function preload() {
   font = loadFont("VCR_OSD_MONO_1.001.ttf");
+  clickSound = loadSound("click.mp3");
+  gameplayMusic = loadSound("relaxing-loop-110470.mp3");
+  gameOverMusic = loadSound("game-over-39-199830.mp3");
 }
 
 function setup() {
   createCanvas(windowWidth * 0.9, windowHeight * 0.9);
 
   cursor(CROSS); // Changes the appearance of the cursor
+
+  gameplayMusic.loop(); // Loop the music
 
   stroke(40, 54, 24); // Changes the stroke color to a dark green
   strokeWeight(3); // Increases the stroke width
@@ -149,7 +144,6 @@ function setup() {
   // BFS Pathfinding functions
   previous = BFSPathfinding(balloonSpawnLocation, balloonEndLocation);
   path = reconstructPath(balloonEndLocation, previous);
-  drawPath(grid, path);
 }
 
 function draw() {
@@ -160,11 +154,12 @@ function draw() {
   selectedCharacterText();
   countHealth();
   cannotAffordText();
-  spawnEnemy();
-  renderEnemies();
+  drawPath(grid, path);
+  renderEnemy();
+  gameOver();
 }
 
-function generateGridMap(cols, rows) {
+function generateGridMap(cols, rows) { // Creates default values for grid
   let newGrid = [];
   for (let y = 0; y < rows; y++) {
     newGrid.push([]);
@@ -175,13 +170,13 @@ function generateGridMap(cols, rows) {
   return newGrid;
 }
 
-function displayGrid(cols, rows) {
+function displayGrid(cols, rows) { // Draws the grid with elements
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
       if (grid[y][x] === 0) {
         fill(color(96, 108, 56)); // Fill with dark green
       }
-      else if (grid[y][x] === PLAYER) {
+      else if (grid[y][x] === ENEMY) {
         fill("white");
       }
       else if (grid[y][x] === BALLOON_START) {
@@ -214,13 +209,16 @@ function balloonStartAndEnd() {
 }
 
 function displayPiece() {
-  grid[currentCharacter.y][currentCharacter.x] = currentCharacter.gridValue;
+  grid[currentCharacter.y][currentCharacter.x] = currentCharacter.gridValue; // Place character on grid
 
   // Clear (0, 0)
   grid[0][0] = 0;
 }
 
 function mouseClicked() {
+  // Play sound effect
+  clickSound.play();
+
   // If the player can afford the current character & is not placing over the path or start/end, then place it down
   if (money >= currentCharacter.price &&
      grid[Math.ceil(mouseY/CELL_SIZE) - 1][Math.ceil(mouseX/CELL_SIZE) - 1] !== ROAD &&
@@ -235,12 +233,46 @@ function mouseClicked() {
     currentCharacter.y = Math.ceil(mouseY/CELL_SIZE) - 1;
     currentCharacter.x = Math.ceil(mouseX/CELL_SIZE) - 1;
 
-    charactersOnScreen.push(currentCharacter);
+    charactersOnScreen.push(structuredClone(currentCharacter));
 
     grid[currentCharacter.y][currentCharacter.x] = currentCharacter.gridValue; // Instatiate character on grid
   }
   else {
     cannotAfford = true;
+  }
+}
+
+function characterDamage() {
+  for (let i = 0; i < charactersOnScreen.length; i++) { // For every character on screen check it's neighbours
+    let neighbourOne = { // Up
+      x: charactersOnScreen[i].x,
+      y: charactersOnScreen[i].y - 1,
+    };
+    let neighbourTwo = { // Down
+      x: charactersOnScreen[i].x,
+      y: charactersOnScreen[i].y + 1,
+    };
+    let neighbourThree = { // Right
+      x: charactersOnScreen[i].x + 1,
+      y: charactersOnScreen[i].y,
+    };
+    let neighbourFour = { // Left
+      x: charactersOnScreen[i].x - 1,
+      y: charactersOnScreen[i].y,
+    };
+
+    let neighbours = [neighbourOne, neighbourTwo, neighbourThree, neighbourFour];
+
+    for (let neighbour of neighbours) {
+      for (let j = 0; j < enemiesOnScreen.length; j++) {
+        if (neighbour.x === enemiesOnScreen[j].x && neighbour.y === enemiesOnScreen[j].y) { // If a neighbouring location is the same as an enemy, attack it
+          enemiesOnScreen[j].health -= charactersOnScreen[i].damage; // Attack
+          if (enemiesOnScreen[j].health <= 0) {
+            enemiesOnScreen.splice(j, 1); // An enemy has died
+          }
+        }
+      }
+    }
   }
 }
 
@@ -350,7 +382,7 @@ function countHealth() {
   text(`Health: ${health}`, width/32, height/8); // Renders health text
 }
 
-function cannotAffordText() {
+function cannotAffordText() { // Indicates when you cannot afford a character
   if (cannotAfford === true) {
     // Text Styling
     fill(color("red"));
@@ -366,37 +398,62 @@ function cannotAffordText() {
   }
 }
 
-function spawnEnemy() {
-  if (millis() - enemyTimer > ENEMY_INTERVAL) {
-    enemiesOnScreen.push(structuredClone(regularEnemy)); // Add an enemy to the screen
-    
-    // Move enemy
-    for (let enemy of enemiesOnScreen) {
-      console.log(enemy);
-      // Delete old enemy
-      if (enemy.currentIndexOnPath !== 0) {
-        enemy.oldY = path[enemy.currentIndexOnPath - 1].y;
-        enemy.oldX = path[enemy.currentIndexOnPath - 1].x;
-      }
-
-      enemy.y = path[enemy.currentIndexOnPath].y;
-      enemy.x = path[enemy.currentIndexOnPath].x;
-
-      if (cycleTwice === true) {
-        enemy.currentIndexOnPath += 1;
-        cycleTwice = false;
-      }
-    }
-    
+function renderEnemy() {
+  if (millis() - enemyTimer > ENEMY_INTERVAL) { // Spawns and moves enemies per 
+    characterDamage();
+    spawnEnemy(); // Spawn enemy every interval
     enemyTimer = millis(); // Reset Timer
-    cycleTwice = true;
+  }
+
+  for (let i = 0; i < enemiesOnScreen.length; i++) { // Places enemy locations on grid
+    enemiesOnScreen[i].y = path[enemiesOnScreen[i].currentIndexOnPath].y;
+    enemiesOnScreen[i].x = path[enemiesOnScreen[i].currentIndexOnPath].x;
+
+    text(enemiesOnScreen[i].health, enemiesOnScreen[i].x * CELL_SIZE, enemiesOnScreen[i].y * CELL_SIZE);
+    grid[enemiesOnScreen[i].y][enemiesOnScreen[i].x] = ENEMY;
   }
 }
 
-function renderEnemies() {
-  for (let enemy of enemiesOnScreen) {
-    grid[enemy.oldY][enemy.oldX] = ROAD;
-    grid[enemy.y][enemy.x] = PLAYER;
+function spawnEnemy() { // Code to spawn and move enemy
+  enemiesOnScreen.push(structuredClone(regularEnemy));
+  for (let i = enemiesOnScreen.length - 1; i > 1; i--) {
+    if (enemiesOnScreen[i].currentIndexOnPath < path.length - 1) { // Occasionally will break - known bug - unknown fix
+      enemiesOnScreen[i].currentIndexOnPath += 1;
+    }
+    else {
+      enemiesOnScreen.pop(); // Delete last enemy
+      health -= 10; // Subtract health
+      enemiesOnScreen.pop(); // Deletes the actual last enemy - bug fixed
+    }
+  }
+}
+
+function gameOver() { // When the player loses
+  if (health <= 0) {
+    // Pause gameplay music
+    gameplayMusic.pause();
+
+    // Play game over music
+    if (!gameOverMusic.isPlaying()) {
+      gameOverMusic.play();
+    }
+
+    // Draw a new background
+    fill("darkred");
+    textSize(width/20);
+    rect(0, 0, width, height);
+
+    // Draw a stylistic circle
+    stroke("black");
+    fill("red");
+    strokeWeight(30);
+    circle(4/5 * width, height/2, height * 2);
+
+    // Render game over text
+    fill("black");
+    strokeWeight(3);
+    text("Game Over", width/2, height/1.9);
+
   }
 }
 
