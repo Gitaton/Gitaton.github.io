@@ -10,6 +10,7 @@
 - [Rectangle Grid](rectangle-grid)
 - [Game of Life](game-of-life)
 - [Character Moving in Grid](character-grid)
+- [Walker OOP](walker)
 
 # CS30 Projects
 - [Interactive Scene](interactive-scene)
