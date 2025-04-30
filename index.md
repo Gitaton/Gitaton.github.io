@@ -12,7 +12,8 @@
 - [Character Moving in Grid](character-grid)
 - [Walker OOP](walker)
 - [Fireworks OOP](fireworks)
-
+- [Connected Nodes OOP](nodes)
+- [Local Storage](local-storage)
 # CS30 Projects
 - [Interactive Scene](interactive-scene)
 - [Arrays and Object Notation](arrays-and-object-notation)
