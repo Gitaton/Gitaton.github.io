@@ -14,6 +14,8 @@
 - [Fireworks OOP](fireworks)
 - [Connected Nodes OOP](nodes)
 - [Local Storage](local-storage)
+- [2D Collide Demo](2d-collide)
+
 # CS30 Projects
 - [Interactive Scene](interactive-scene)
 - [Arrays and Object Notation](arrays-and-object-notation)
